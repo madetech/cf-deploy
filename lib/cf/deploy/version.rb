@@ -1,5 +1,5 @@
 module CF
-    VERSION = "0.0.1"
   class Deploy
+    VERSION = "0.1.0"
   end
 end
