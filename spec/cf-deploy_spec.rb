@@ -13,7 +13,7 @@ describe CF::Deploy do
     end
 
     it 'should install tasks with defined dependencies' do
-      Rake::Task.define_task('asset:precompile')
+      expected_task = Rake::Task.define_task('asset:precompile')
 
       Dir.chdir('spec/') do
         described_class.install_tasks! do
@@ -21,7 +21,7 @@ describe CF::Deploy do
         end
       end
 
-      expect(Rake::Task['cf:deploy:staging'].prerequisite_tasks[0].name).to eq('asset:precompile')
+      expect(Rake::Task['cf:deploy:staging'].prerequisite_tasks[0]).to be(expected_task)
     end
 
     it 'should install login task' do
