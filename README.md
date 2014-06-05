@@ -117,7 +117,7 @@ require 'cf-deploy'
 
 CF::Deploy.rake_tasks! do
   api 'api.run.pivotal.io'
-  username 'accounts@madebymade.co.uk'
+  username 'example@example.com'
   password 'SOMETHING'
   org 'Made'
   space 'development'
@@ -143,7 +143,7 @@ ENV variables on your command line:
 
 ``` sh
 export CF_API=api.run.pivotal.io
-export CF_USERNAME=accounts@madebymade.co.uk
+export CF_USERNAME=example@example.com
 export CF_PASSWORD=SOMETHING
 export CF_ORG=Made
 export CF_SPACE=development
