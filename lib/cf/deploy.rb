@@ -66,7 +66,7 @@ module CF
       task_block = Proc.new do
       end
 
-      [task_name, task_deps]
+      [task_name, (['cf:login'] << task_deps).flatten]
     end
 
     def manifests
