@@ -1,6 +1,6 @@
 require "cf/deploy/version"
 
-module Cf
+module CF
   module Deploy
     # Your code goes here...
   end

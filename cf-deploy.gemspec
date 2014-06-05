@@ -4,7 +4,7 @@ require 'cf/deploy/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'cf-deploy'
-  spec.version       = Cf::Deploy::VERSION
+  spec.version       = CF::Deploy::VERSION
   spec.authors       = ['Luke Morton']
   spec.email         = ['luke@madebymade.co.uk']
   spec.summary       = %q{Rake tasks for deploying to CloudFoundry v6+}
