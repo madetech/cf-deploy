@@ -30,9 +30,9 @@ bundle exec rake cf:deploy:production
 ```
 
 This however mimics the commands `cf push -f manifests/staging.yml` and
-`cf push -f manifests/staging/yml`. Things start to get more exciting when you
-define your environments in your `Rakefile` along with their task dependencies
-just like normal rake task syntax.
+`cf push -f manifests/production.yml`. Not really anything helpful or new.
+Things start to get more exciting when you define your environments in your
+`Rakefile` along with their task dependencies just like normal rake task syntax.
 
 ``` ruby
 require 'cf-deploy'
@@ -43,7 +43,7 @@ CF::Deploy.rake_tasks! do
 end
 ```
 
-Now when running `cf:deploy:staging` and `cf:deploy:production` the defined
+Now when running `cf:deploy:staging` and `cf:deploy:production` the prerequisite
 tasks will be run first.
 
 And then things get super interesting when you start talking blue/green.
@@ -119,7 +119,7 @@ CF::Deploy.rake_tasks! do
   api 'api.run.pivotal.io'
   username 'example@example.com'
   password 'SOMETHING'
-  org 'Made'
+  organisation 'Made'
   space 'development'
 
   environment :staging => 'assets:precompile'
@@ -138,7 +138,7 @@ the rake tasks.
 ### Defining CloudFoundry details using ENV variables
 
 Instead of defining your CloudFoundry login details in your Rakefile and
-committing then to your code repository you can instead provide them using
+committing them to your code repository you can instead provide them using
 ENV variables on your command line:
 
 ``` sh
@@ -186,7 +186,8 @@ If you run the same task again, the same environment will be deployed. That is
 if green was deployed, and then you run the task, blue will be deployed, if you
 run the task again, blue will be deployed again. This is because we work out
 the current deployment based on where your routes are pointing. *This isn't the
-case for a first time deploy, your routes will be setup to your blue env*.
+case for a first time deploy, in this case your routes will be setup to your
+blue env*.
 
 ### Switch routes over to new production
 
