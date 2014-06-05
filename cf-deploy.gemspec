@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://github.com/madebymade/cf-deploy'
   spec.license       = 'MIT'
 
-  spec.files         = `git ls-files -z`.split('\x0')
+  spec.files         = Dir['{lib,spec}/**/*.rb'] + ['LICENSE', 'README.md']
   spec.test_files    = ['spec']
   spec.require_paths = ['lib']
 
