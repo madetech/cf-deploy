@@ -15,7 +15,7 @@ With `cf-deploy` you can:
 The functionality comes in the shape of generated rake tasks. You require this
 gem in your `Rakefile` and call the `.rake_tasks!` setup method.
 
-``` Rakefile
+``` ruby
 require 'cf-deploy'
 CF::Deploy.rake_tasks!
 ```
@@ -34,7 +34,7 @@ This however mimics the commands `cf push -f manifests/staging.yml` and
 define your environments in your `Rakefile` along with their task dependencies
 just like normal rake task syntax.
 
-``` Rakefile
+``` ruby
 require 'cf-deploy'
 
 CF::Deploy.rake_tasks! do
@@ -69,7 +69,7 @@ For example you might have a straight forward deployment for staging but use
 the blue/green strategy for production. Here is what your Rakefile might look
 like:
 
-``` Rakefile
+``` ruby
 require 'cf-deploy'
 
 CF::Deploy.rake_tasks! do
@@ -103,7 +103,7 @@ the [CloudFoundry CLI][cli] repo on github.
 
 You then need to install this gem in your project's `Gemfile`:
 
-``` Gemfile
+``` ruby
 gem 'cf-deploy', '0.1.0'
 ```
 
@@ -112,7 +112,7 @@ gem 'cf-deploy', '0.1.0'
 You can configure some or all of your CloudFoundry details when calling
 `CF::Deploy.rake_tasks!`.
 
-``` Rakefile
+``` ruby
 require 'cf-deploy'
 
 CF::Deploy.rake_tasks! do
