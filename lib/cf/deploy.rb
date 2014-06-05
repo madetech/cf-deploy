@@ -1,7 +1,7 @@
 require "cf/deploy/version"
 
 module CF
-  module Deploy
     # Your code goes here...
+  class Deploy
   end
 end
