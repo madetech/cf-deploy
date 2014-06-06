@@ -12,7 +12,7 @@ module CF
     end
 
     class Config < Hash
-      VALID_KEYS = [:api, :username, :password, :organisation, :space]
+      VALID_CF_KEYS = [:api, :username, :password, :organisation, :space]
 
       def initialize
         self[:manifest_glob] = 'manifests/*.yml'
@@ -24,7 +24,7 @@ module CF
       end
 
       def from_env(key)
-        raise "Invalid key #{key}" unless VALID_KEYS.include?(key)
+        raise "Invalid key #{key}" unless VALID_CF_KEYS.include?(key)
         ENV["CF_#{key.upcase}"]
       end
 
@@ -59,7 +59,7 @@ module CF
       Rake::Task.define_task('cf:login') do
         login_cmd = ['cf login']
 
-        login_cmd << Config::VALID_KEYS
+        login_cmd << Config::VALID_CF_KEYS
           .reject { |key| config[key].nil? }
           .map { |key| "-#{key.to_s[0]} #{config[key]}" }
 
