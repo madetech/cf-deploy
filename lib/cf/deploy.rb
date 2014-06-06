@@ -48,7 +48,7 @@ module CF
     end
 
     def tasks
-      [login_task].concat(manifests.map { |manifest| build_task(manifest) })
+      [login_task].concat(manifests.map { |manifest| deploy_task(manifest) })
     end
 
     def login_task
@@ -65,7 +65,7 @@ module CF
       end
     end
 
-    def build_task(manifest)
+    def deploy_task(manifest)
       env = File.basename(manifest, '.yml').to_sym
 
       task_name = "cf:deploy:#{env}"
