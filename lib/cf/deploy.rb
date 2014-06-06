@@ -4,22 +4,34 @@ require 'rake'
 module CF
   class Deploy
     class << self
-      include Rake::DSL
-
       def install_tasks!(&block)
         config = Config.new
         config.instance_eval(&block) if block_given?
-
-        new(config).tasks.each do |(name, deps)|
-          task(name => deps)
-        end
+        new(config).tasks
       end
     end
 
     class Config < Hash
+      VALID_KEYS = [:api, :username, :password, :organisation, :space]
+
       def initialize
         self[:environments] = {}
       end
+
+      def [](key)
+        super || from_env(key)
+      end
+
+      def from_env(key)
+        raise "Invalid key #{key}" unless VALID_KEYS.include?(key)
+        ENV["CF_#{key.upcase}"]
+      end
+
+      def api(api) self[:api] = api end
+      def username(username) self[:username] = username end
+      def password(password) self[:password] = password end
+      def organisation(organisation) self[:organisation] = organisation end
+      def space(space) self[:space] = space end
 
       def environment(env)
         if env.is_a?(Hash)
@@ -40,33 +52,32 @@ module CF
     end
 
     def login_task
-      task_block = Proc.new do
+      return Rake::Task['cf:login'] if Rake::Task.task_defined?('cf:login')
+
+      Rake::Task.define_task('cf:login') do
         login_cmd = ['cf login']
 
-        login_cmd << [:api, :organisation, :space, :username, :password].map { |detail|
-          "-#{detail.to_s[0]} #{value}" if value = config.send(detail)
-        }.reject(&:nil?)
+        login_cmd << Config::VALID_KEYS
+          .reject { |key| config[key].nil? }
+          .map { |key| "-#{key.to_s[0]} #{config[key]}" }
 
-        system(login_cmd.flatten.join(' '))
+        Kernel.system(login_cmd.flatten.join(' '))
       end
-
-      ['cf:login', [], task_block]
     end
 
     def build_task(manifest)
       env = File.basename(manifest, '.yml').to_sym
+
       task_name = "cf:deploy:#{env}"
+      task_deps = ['cf:login']
 
       if config[:environments].has_key?(env)
-        task_deps = config[:environments][env][:deps]
-      else
-        task_deps = []
+        task_deps << config[:environments][env][:deps]
       end
 
-      task_block = Proc.new do
+      Rake::Task.define_task(task_name => task_deps.flatten) do
+        Kernel.system("cf push -f #{manifest}")
       end
-
-      [task_name, (['cf:login'] << task_deps).flatten]
     end
 
     def manifests
