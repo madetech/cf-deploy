@@ -15,6 +15,7 @@ module CF
       VALID_KEYS = [:api, :username, :password, :organisation, :space]
 
       def initialize
+        self[:manifest_glob] = 'manifests/*.yml'
         self[:environments] = {}
       end
 
@@ -27,6 +28,7 @@ module CF
         ENV["CF_#{key.upcase}"]
       end
 
+      def manifest_glob(glob) self[:manifest_glob] = glob end
       def api(api) self[:api] = api end
       def username(username) self[:username] = username end
       def password(password) self[:password] = password end
@@ -81,7 +83,7 @@ module CF
     end
 
     def manifests
-      Dir['manifests/*.yml']
+      Dir[config[:manifest_glob]]
     end
   end
 end
