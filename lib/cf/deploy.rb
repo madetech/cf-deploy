@@ -20,12 +20,11 @@ module CF
       end
 
       def [](key)
-        super || from_env(key)
+        from_env(key) || super
       end
 
       def from_env(key)
-        raise "Invalid key #{key}" unless VALID_CF_KEYS.include?(key)
-        ENV["CF_#{key.upcase}"]
+        ENV["CF_#{key.upcase}"] if VALID_CF_KEYS.include?(key)
       end
 
       def manifest_glob(glob) self[:manifest_glob] = glob end

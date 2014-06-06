@@ -86,6 +86,39 @@ describe CF::Deploy do
       expect(Kernel).to receive(:system).with('cf login -a api -u test -p pass -o org -s space')
       Rake::Task['cf:login'].invoke
     end
+
+    it 'should include all details provided in ENV' do
+      {'CF_API' => 'api',
+       'CF_USERNAME' => 'test',
+       'CF_PASSWORD' => 'pass',
+       'CF_ORGANISATION' => 'org',
+       'CF_SPACE' => 'space'}.each do |(k, v)|
+        expect(ENV).to receive(:[]).with(k).and_return(v).at_least(:once)
+      end
+
+      expect(Kernel).to receive(:system).with('cf login -a api -u test -p pass -o org -s space')
+      described_class.install_tasks!
+      Rake::Task['cf:login'].invoke
+    end
+
+    it 'should mix and match ENV and defined details with ENV having precedence' do
+      {'CF_API' => nil,
+       'CF_USERNAME' => 'test',
+       'CF_PASSWORD' => 'pass',
+       'CF_ORGANISATION' => 'org',
+       'CF_SPACE' => nil}.each do |(k, v)|
+        expect(ENV).to receive(:[]).with(k).and_return(v).at_least(:once)
+      end
+
+      expect(Kernel).to receive(:system).with('cf login -a api -u test -p pass -o org')
+
+      described_class.install_tasks! do
+        api 'api'
+        organisation 'will be overridden by ENV[CF_ORGANISATION]'
+      end
+      
+      Rake::Task['cf:login'].invoke
+    end
   end
 
   context 'Rake::Task[cf:deploy:XX]' do
