@@ -13,7 +13,7 @@ describe CF::Deploy do
       end
 
       expect(Rake::Task['cf:deploy:staging']).to be_a(Rake::Task)
-      expect(Rake::Task['cf:deploy:production']).to be_a(Rake::Task)
+      expect(Rake::Task['cf:deploy:test']).to be_a(Rake::Task)
     end
 
     it 'should install login task' do
@@ -39,12 +39,12 @@ describe CF::Deploy do
       Dir.chdir('spec/') do
         described_class.install_tasks! do
           environment :staging => 'asset:precompile'
-          environment :production => ['asset:precompile', :clean]
+          environment :test => ['asset:precompile', :clean]
         end
       end
 
       expect(Rake::Task['cf:deploy:staging'].prerequisite_tasks[1]).to be(expected_task_1)
-      expect(Rake::Task['cf:deploy:production'].prerequisite_tasks[2]).to be(expected_task_2)
+      expect(Rake::Task['cf:deploy:test'].prerequisite_tasks[2]).to be(expected_task_2)
     end
 
     it 'should have a configurable manifest glob options' do
@@ -116,7 +116,7 @@ describe CF::Deploy do
         api 'api'
         organisation 'will be overridden by ENV[CF_ORGANISATION]'
       end
-      
+
       Rake::Task['cf:login'].invoke
     end
   end
