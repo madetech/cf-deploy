@@ -11,6 +11,17 @@ module CF
       end
     end
 
+    class EnvConfig < Hash
+      def initialize(env, &block)
+        if env.is_a?(Hash)
+          name, deps = env.first
+          merge!({:name => name, :deps => deps})
+        else
+          merge!({:name => name, :deps => []})
+        end
+      end
+    end
+
     class Config < Hash
       VALID_CF_KEYS = [:api, :username, :password, :organisation, :space]
 
@@ -34,11 +45,9 @@ module CF
       def organisation(organisation) self[:organisation] = organisation end
       def space(space) self[:space] = space end
 
-      def environment(env)
-        if env.is_a?(Hash)
-          name, deps = env.first
-          self[:environments][name] = {:name => name, :deps => deps}
-        end
+      def environment(env, &block)
+        env_config = EnvConfig.new(env, &block)
+        self[:environments].merge!(env_config[:name] => env_config)
       end
     end
 
