@@ -46,6 +46,27 @@ end
 Now when running `cf:deploy:staging` and `cf:deploy:production` the prerequisite
 tasks will be run first.
 
+The next thing to talk about is route mapping. You can define a route in a an
+environment block like so:
+
+``` ruby
+require 'cf-deploy'
+
+CF::Deploy.rake_tasks! do
+  environment :staging => 'assets:precompile' do
+    route 'example.com', 'staging'
+  end
+
+  environment :production => [:clean, 'assets:precompile'] do
+    route 'example.com'
+    route 'example.com', 'admin'
+  end
+end
+```
+
+Any time you deploy an environment with one or more routes defined the routes
+will be mapped to all applications in the environment's manifest.
+
 And then things get super interesting when you start talking blue/green.
 
 ## What is blue/green deployment?
@@ -76,16 +97,17 @@ CF::Deploy.rake_tasks! do
   environment :staging => 'assets:precompile'
 
   environment :production => 'assets:precompile' do
-    blue 'example-app-blue'
-    green 'example-app-green'
     route 'example-app.io'
   end
 end
 ```
 
+You should also have `manifests/production_blue.yml` and
+`manifests/production_green.yml` defined.
+
 When you run `cf:deploy:production` for the first time (assuming neither
-example-app-blue or example-app-green are deployed) your blue app will be
-deployed and route setup.
+`production_blue.yml` or `production_green.yml` are deployed) your blue app will
+be deployed and route setup.
 
 Running `cf:deploy:production` thereafter will deploy which ever version isn't
 currently deployed. Your route(s) will not be mapped automatically this time.
@@ -125,8 +147,6 @@ CF::Deploy.rake_tasks! do
   environment :staging => 'assets:precompile'
 
   environment :production => 'assets:precompile' do
-    blue 'example-app-blue'
-    green 'example-app-green'
     route 'example-app.io'
   end
 end
@@ -169,27 +189,36 @@ Any environment you define will have a task created named `cf:deploy:#{env}`.
 
 ### Deploy the next blue/green environment
 
-If you defined blue and green app names in your Rakefile for the production
-environment you will get blue/green deployment functionality.
+If you have defined CloudFoundry manifest files matching `manifests/*_blue.yml`
+and `manifests/*_green.yml` you will be able to call `rake cf:deploy:*` without
+the `_blue` or `_green`. For example with `production_blue.yml` and
+`production_green.yml` you can call the following:
 
 ```
 bundle exec rake cf:deploy:production
 ```
 
-Running the deploy task for an env with these two settings will trigger a lookup
-to see which env is currently deployed. The task will then start deploying
-the other production color, so if green is currently deployed then blue will be
-deployed. If neither is currently deployed, blue will be deployed first.
+Running the deploy task for an env with blue and green manifests will trigger a
+lookup to see which env is currently deployed. The task will then start
+deploying the other production color, so if green is currently deployed then
+blue will be deployed. If neither is currently deployed, blue will be deployed
+first.
 
 Once deployed your routing will still be pointing to the *previous deployment*.
 If you run the same task again, the same environment will be deployed. That is
 if green was deployed, and then you run the task, blue will be deployed, if you
 run the task again, blue will be deployed again. This is because we work out
-the current deployment based on where your routes are pointing. *This isn't the
-case for a first time deploy, in this case your routes will be setup to your
-blue env*.
+the current deployment based on where your routes are pointing and since the
+deploy command for blue green environments doesn't map routes the current
+deployment will not change.
 
-### Switch routes over to new production
+#### First time proviso
+
+This isn't the case for a first time deploy. The first time you deploy your
+blue environment will be deployed and any defined routes will be mapped to all
+apps defined in your blue manifest.
+
+### Switch routes over to new environment
 
 In order to flip your routes from blue to green or vice-versa you need to run
 the following task.
