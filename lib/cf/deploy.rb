@@ -1,5 +1,6 @@
 require 'cf/deploy/version'
 require 'rake'
+require 'yaml'
 
 module CF
   class Deploy
@@ -15,10 +16,17 @@ module CF
       def initialize(env, &block)
         if env.is_a?(Hash)
           name, deps = env.first
-          merge!({:name => name, :deps => deps})
+          deps = (['cf:login'] << deps).flatten
         else
-          merge!({:name => name, :deps => []})
+          name = env
+          deps = ['cf:login']
         end
+
+        merge!({:name => name,
+                :deps => deps,
+                :routes => [],
+                :app_names => []})
+        instance_eval(&block) if block_given?
       end
     end
 
@@ -78,14 +86,15 @@ module CF
     def deploy_task(manifest)
       env = File.basename(manifest, '.yml').to_sym
 
-      task_name = "cf:deploy:#{env}"
-      task_deps = ['cf:login']
-
       if config[:environments].has_key?(env)
-        task_deps << config[:environments][env][:deps]
+        env_config = config[:environments][env]
+      else
+        env_config = EnvConfig.new(env)
       end
 
-      Rake::Task.define_task(task_name => task_deps.flatten) do
+      task_name = "cf:deploy:#{env_config[:name]}"
+
+      Rake::Task.define_task(task_name => env_config[:deps]) do
         Kernel.system("cf push -f #{manifest}")
       end
     end
