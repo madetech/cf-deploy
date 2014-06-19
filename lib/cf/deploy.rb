@@ -65,6 +65,10 @@ module CF
       @config = config
     end
 
+    def manifests
+      Dir[config[:manifest_glob]]
+    end
+
     def tasks
       [login_task].concat(manifests.map { |manifest| deploy_task(manifest) })
     end
@@ -97,10 +101,6 @@ module CF
       Rake::Task.define_task(task_name => env_config[:deps]) do
         Kernel.system("cf push -f #{manifest}")
       end
-    end
-
-    def manifests
-      Dir[config[:manifest_glob]]
     end
   end
 end
