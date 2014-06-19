@@ -5,7 +5,7 @@ require 'yaml'
 module CF
   class Deploy
     class << self
-      def install_tasks!(&block)
+      def rake_tasks!(&block)
         config = Config.new
         config.instance_eval(&block) if block_given?
         new(config).tasks

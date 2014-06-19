@@ -6,10 +6,10 @@ describe CF::Deploy do
     Rake::Task.clear
   end
 
-  context '.install_tasks!' do
+  context '.rake_tasks!' do
     it 'should install task for each manifest' do
       Dir.chdir('spec/') do
-        described_class.install_tasks!
+        described_class.rake_tasks!
       end
 
       expect(Rake::Task['cf:deploy:staging']).to be_a(Rake::Task)
@@ -18,7 +18,7 @@ describe CF::Deploy do
 
     it 'should install login task' do
       Dir.chdir('spec/') do
-        described_class.install_tasks!
+        described_class.rake_tasks!
       end
 
       expect(Rake::Task['cf:login']).to be_a(Rake::Task)
@@ -26,7 +26,7 @@ describe CF::Deploy do
 
     it 'should install a login task as a prerequisite for deploy tasks' do
       Dir.chdir('spec/') do
-        described_class.install_tasks!
+        described_class.rake_tasks!
       end
 
       expect(Rake::Task['cf:deploy:staging'].prerequisite_tasks[0]).to be(Rake::Task['cf:login'])
@@ -37,7 +37,7 @@ describe CF::Deploy do
       expected_task_2 = Rake::Task.define_task(:clean)
 
       Dir.chdir('spec/') do
-        described_class.install_tasks! do
+        described_class.rake_tasks! do
           environment :staging => 'asset:precompile'
           environment :test => ['asset:precompile', :clean]
         end
@@ -49,7 +49,7 @@ describe CF::Deploy do
 
     it 'should have a configurable manifest glob options' do
       Dir.chdir('spec/') do
-        described_class.install_tasks! do
+        described_class.rake_tasks! do
           manifest_glob 'manifests/staging.yml'
         end
       end
@@ -60,13 +60,13 @@ describe CF::Deploy do
 
   context 'Rake::Task[cf:login]' do
     it 'should run `cf login` without arguments if none provided' do
-      described_class.install_tasks!
+      described_class.rake_tasks!
       expect(Kernel).to receive(:system).with('cf login')
       Rake::Task['cf:login'].invoke
     end
 
     it 'should include defined details' do
-      described_class.install_tasks! do
+      described_class.rake_tasks! do
         api 'api.run.pivotal.io'
       end
 
@@ -75,7 +75,7 @@ describe CF::Deploy do
     end
 
     it 'should include all defined details' do
-      described_class.install_tasks! do
+      described_class.rake_tasks! do
         api 'api'
         username 'test'
         password 'pass'
@@ -97,7 +97,7 @@ describe CF::Deploy do
       end
 
       expect(Kernel).to receive(:system).with('cf login -a api -u test -p pass -o org -s space')
-      described_class.install_tasks!
+      described_class.rake_tasks!
       Rake::Task['cf:login'].invoke
     end
 
@@ -112,7 +112,7 @@ describe CF::Deploy do
 
       expect(Kernel).to receive(:system).with('cf login -a api -u test -p pass -o org')
 
-      described_class.install_tasks! do
+      described_class.rake_tasks! do
         api 'api'
         organisation 'will be overridden by ENV[CF_ORGANISATION]'
       end
@@ -124,7 +124,7 @@ describe CF::Deploy do
   context 'Rake::Task[cf:deploy:XX]' do
     it 'should run a manifest' do
       Dir.chdir('spec/') do
-        described_class.install_tasks!
+        described_class.rake_tasks!
       end
 
       expect(Kernel).to receive(:system).with('cf login').ordered
