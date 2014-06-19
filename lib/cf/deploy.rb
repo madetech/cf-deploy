@@ -26,7 +26,25 @@ module CF
                 :deps => deps,
                 :routes => [],
                 :app_names => []})
+
         instance_eval(&block) if block_given?
+      end
+
+      def manifest(manifest)
+        self[:manifest] = manifest
+        extract_apps!
+      end
+
+      def route(domain, hostname = nil)
+        self[:routes] << {:domain => domain, :hostname => hostname}
+      end
+
+      def extract_apps!
+        manifest = YAML.load_file(self[:manifest])
+
+        if manifest.has_key?('applications')
+          merge!(:app_names => manifest['applications'].map { |a| a['name'] })
+        end
       end
     end
 
@@ -44,6 +62,19 @@ module CF
 
       def from_env(key)
         ENV["CF_#{key.upcase}"] if VALID_CF_KEYS.include?(key)
+      end
+
+      def environment_config(manifest)
+        env = File.basename(manifest, '.yml').to_sym
+
+        if self[:environments].has_key?(env)
+          env_config = self[:environments][env]
+        else
+          env_config = EnvConfig.new(env)
+        end
+
+        env_config.manifest(manifest)
+        env_config
       end
 
       def manifest_glob(glob) self[:manifest_glob] = glob end
@@ -88,18 +119,19 @@ module CF
     end
 
     def deploy_task(manifest)
-      env = File.basename(manifest, '.yml').to_sym
+      env = config.environment_config(manifest)
+      task_name = "cf:deploy:#{env[:name]}"
 
-      if config[:environments].has_key?(env)
-        env_config = config[:environments][env]
-      else
-        env_config = EnvConfig.new(env)
-      end
-
-      task_name = "cf:deploy:#{env_config[:name]}"
-
-      Rake::Task.define_task(task_name => env_config[:deps]) do
+      Rake::Task.define_task(task_name => env[:deps]) do
         Kernel.system("cf push -f #{manifest}")
+
+        env[:routes].each do |route|
+          env[:app_names].each do |app_name|
+            map_cmd = "cf map-route #{app_name} #{route[:domain]}"
+            map_cmd = "#{map_cmd} -n #{route[:hostname]}" unless route[:hostname].nil?
+            Kernel.system(map_cmd)
+          end
+        end
       end
     end
   end

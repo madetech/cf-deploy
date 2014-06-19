@@ -131,5 +131,52 @@ describe CF::Deploy do
       expect(Kernel).to receive(:system).with('cf push -f manifests/staging.yml').ordered
       Rake::Task['cf:deploy:staging'].invoke
     end
+
+    it 'should setup a route if defined after pushing manifest' do
+      Dir.chdir('spec/') do
+        described_class.rake_tasks! do
+          environment :test do
+            route 'testexample.com'
+          end
+        end
+      end
+
+      expect(Kernel).to receive(:system).with('cf login').ordered
+      expect(Kernel).to receive(:system).with('cf push -f manifests/test.yml').ordered
+      expect(Kernel).to receive(:system).with('cf map-route test-app testexample.com').ordered
+      Rake::Task['cf:deploy:test'].invoke
+    end
+
+    it 'should setup a route with a hostname if defined' do
+      Dir.chdir('spec/') do
+        described_class.rake_tasks! do
+          environment :test do
+            route 'example.com', 'test'
+          end
+        end
+      end
+
+      expect(Kernel).to receive(:system).with('cf login').ordered
+      expect(Kernel).to receive(:system).with('cf push -f manifests/test.yml').ordered
+      expect(Kernel).to receive(:system).with('cf map-route test-app example.com -n test')
+      Rake::Task['cf:deploy:test'].invoke
+    end
+
+    it 'should setup multiple routes if defined' do
+      Dir.chdir('spec/') do
+        described_class.rake_tasks! do
+          environment :test do
+            route 'example.com'
+            route 'example.com', '2'
+          end
+        end
+      end
+
+      expect(Kernel).to receive(:system).with('cf login').ordered
+      expect(Kernel).to receive(:system).with('cf push -f manifests/test.yml').ordered
+      expect(Kernel).to receive(:system).with('cf map-route test-app example.com').ordered
+      expect(Kernel).to receive(:system).with('cf map-route test-app example.com -n 2').ordered
+      Rake::Task['cf:deploy:test'].invoke
+    end
   end
 end
