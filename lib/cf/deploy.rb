@@ -52,7 +52,7 @@ module CF
       VALID_CF_KEYS = [:api, :username, :password, :organisation, :space]
 
       def initialize
-        self[:manifest_glob] = 'manifests/*.yml'
+        self[:manifest_glob] = 'manifests/*'
         self[:environments] = {}
       end
 
@@ -100,8 +100,25 @@ module CF
       Dir[config[:manifest_glob]]
     end
 
+    def blue_green
+      manifests = Dir[config[:manifest_glob] + "{_blue,_green}.yml"].reduce({}) do |envs, manifest|
+        if manifest =~ /_blue.yml$/
+          env = File.basename(manifest, '_blue.yml').to_sym
+        elsif manifest =~ /_green.yml$/
+          env = File.basename(manifest, '_green.yml').to_sym 
+        else
+          return envs
+        end
+
+        envs[env] ||= []
+        envs[env] << manifest
+        envs
+      end
+    end
+
     def tasks
       [login_task].concat(manifests.map { |manifest| deploy_task(manifest) })
+                  .concat(blue_green.map { |(env, manifests)| blue_green_task(env, manifests) })
     end
 
     def login_task
@@ -133,6 +150,11 @@ module CF
           end
         end
       end
+    end
+
+    def blue_green_task(env, manifests)
+      task_name = "cf:deploy:#{env}"
+      Rake::Task.define_task(task_name)
     end
   end
 end

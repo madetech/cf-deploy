@@ -178,5 +178,34 @@ describe CF::Deploy do
       expect(Kernel).to receive(:system).with('cf map-route test-app example.com -n 2').ordered
       Rake::Task['cf:deploy:test'].invoke
     end
+
+    xit 'should not map routes if push fails' do
+    end
+
+    xit 'should throw decent error if manifest does not exist' do
+    end
+
+    xit 'should throw decent error if manifest invalid' do
+    end
+  end
+
+  context 'Blue/green deployment task' do
+    it 'should exist if *_blue.yml and *_green.yml manifests exist' do
+      Dir.chdir('spec/') do
+        described_class.rake_tasks!
+        expect(Rake::Task['cf:deploy:production']).to be_a(Rake::Task)
+      end
+    end
+
+    xit 'should deploy blue if not currently deployed' do
+      Dir.chdir('spec/') do
+        described_class.rake_tasks! do
+          environment :production do
+            route 'example.com'
+            route 'example.com', '2'
+          end
+        end
+      end
+    end
   end
 end
