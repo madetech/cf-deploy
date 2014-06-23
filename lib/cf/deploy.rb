@@ -13,6 +13,10 @@ module CF
     end
 
     class EnvConfig < Hash
+      def self.task_name(name)
+        "cf:deploy:#{name}"
+      end
+
       def initialize(env, &block)
         if env.is_a?(Hash)
           name, deps = env.first
@@ -23,6 +27,7 @@ module CF
         end
 
         merge!({:name => name,
+                :task_name => EnvConfig.task_name(name),
                 :deps => deps,
                 :routes => [],
                 :app_names => []})
@@ -30,8 +35,8 @@ module CF
         instance_eval(&block) if block_given?
       end
 
-      def manifest(manifest)
-        self[:manifest] = manifest
+      def manifests(manifests)
+        self[:manifests] = manifests
         extract_apps!
       end
 
@@ -40,11 +45,17 @@ module CF
       end
 
       def extract_apps!
-        manifest = YAML.load_file(self[:manifest])
+        app_names = self[:manifests].reduce([]) do |app_names, manifest_path|
+          manifest = YAML.load_file(manifest_path)
 
-        if manifest.has_key?('applications')
-          merge!(:app_names => manifest['applications'].map { |a| a['name'] })
+          if manifest.has_key?('applications')
+            app_names.concat(manifest['applications'].map { |a| a['name'] })
+          else
+            app_names
+          end
         end
+
+        merge!(:app_names => app_names)
       end
     end
 
@@ -64,16 +75,24 @@ module CF
         ENV["CF_#{key.upcase}"] if VALID_CF_KEYS.include?(key)
       end
 
-      def environment_config(manifest)
-        env = File.basename(manifest, '.yml').to_sym
-
+      def environment_config(env)
         if self[:environments].has_key?(env)
-          env_config = self[:environments][env]
+          self[:environments][env]
         else
-          env_config = EnvConfig.new(env)
+          EnvConfig.new(env)
         end
+      end
 
-        env_config.manifest(manifest)
+      def environment_config_for_manifest(manifest)
+        env = File.basename(manifest, '.yml').to_sym
+        env_config = environment_config(env)
+        env_config.manifests([manifest])
+        env_config
+      end
+
+      def environment_config_for_blue_green(env, manifests)
+        env_config = environment_config(env)
+        env_config.manifests(manifests)
         env_config
       end
 
@@ -101,7 +120,7 @@ module CF
     end
 
     def blue_green
-      manifests = Dir[config[:manifest_glob] + "{_blue,_green}.yml"].reduce({}) do |envs, manifest|
+      manifests = Dir["#{config[:manifest_glob]}{_blue,_green}.yml"].reduce({}) do |envs, manifest|
         if manifest =~ /_blue.yml$/
           env = File.basename(manifest, '_blue.yml').to_sym
         elsif manifest =~ /_green.yml$/
@@ -136,10 +155,9 @@ module CF
     end
 
     def deploy_task(manifest)
-      env = config.environment_config(manifest)
-      task_name = "cf:deploy:#{env[:name]}"
+      env = config.environment_config_for_manifest(manifest)
 
-      Rake::Task.define_task(task_name => env[:deps]) do
+      Rake::Task.define_task(env[:task_name] => env[:deps]) do
         Kernel.system("cf push -f #{manifest}")
 
         env[:routes].each do |route|
@@ -152,9 +170,26 @@ module CF
       end
     end
 
+    def current_production(env)
+      domain = env[:routes].first.values_at(:host, :domain).compact.join('.')
+      io = IO.popen("cf routes | grep #{domain}")
+      matches = /(blue|green)/.match(io.read)
+      io.close
+      return if matches.nil?
+      matches[1].strip
+    end
+
+    def next_production(env)
+      current_production(env) != 'blue' ? 'blue' : 'green'
+    end
+
     def blue_green_task(env, manifests)
-      task_name = "cf:deploy:#{env}"
-      Rake::Task.define_task(task_name)
+      env = config.environment_config_for_blue_green(env, manifests)
+
+      Rake::Task.define_task(env[:task_name] => env[:deps]) do
+        task_name = EnvConfig.task_name("#{env[:name]}_#{next_production(env)}")
+        Rake::Task[task_name].invoke
+      end
     end
   end
 end

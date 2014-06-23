@@ -190,22 +190,63 @@ describe CF::Deploy do
   end
 
   context 'Blue/green deployment task' do
-    it 'should exist if *_blue.yml and *_green.yml manifests exist' do
-      Dir.chdir('spec/') do
-        described_class.rake_tasks!
-        expect(Rake::Task['cf:deploy:production']).to be_a(Rake::Task)
-      end
-    end
-
-    xit 'should deploy blue if not currently deployed' do
+    let :rake_tasks! do
       Dir.chdir('spec/') do
         described_class.rake_tasks! do
           environment :production do
             route 'example.com'
             route 'example.com', '2'
           end
+          
+          environment :production_blue do
+            route 'example.com'
+            route 'example.com', '2'
+          end
+
+          environment :production_green do
+            route 'example.com'
+            route 'example.com', '2'
+          end
         end
       end
+    end
+
+    it 'should exist if *_blue.yml and *_green.yml manifests exist' do
+      rake_tasks!
+      expect(Rake::Task['cf:deploy:production']).to be_a(Rake::Task)
+    end
+
+    it 'should deploy blue if not currently deployed' do
+      rake_tasks!
+      expect(Kernel).to receive(:system).with('cf login').ordered
+      expect(IO).to receive(:popen).with('cf routes | grep example.com') { double(:read => '', :close => nil) }
+      expect(Kernel).to receive(:system).with('cf push -f manifests/production_blue.yml').ordered
+      expect(Kernel).to receive(:system).with('cf map-route production-blue-app example.com').ordered
+      expect(Kernel).to receive(:system).with('cf map-route production-blue-app example.com -n 2').ordered
+      Rake::Task['cf:deploy:production'].invoke
+    end
+
+    it 'should deploy blue if green currently deployed' do
+      rake_tasks!
+      expect(Kernel).to receive(:system).with('cf login').ordered
+      expect(IO).to receive(:popen).with('cf routes | grep example.com') { double(:read => 'production-green-app', :close => nil) }
+      expect(Kernel).to receive(:system).with('cf push -f manifests/production_blue.yml').ordered
+      expect(Kernel).to receive(:system).with('cf map-route production-blue-app example.com').ordered
+      expect(Kernel).to receive(:system).with('cf map-route production-blue-app example.com -n 2').ordered
+      Rake::Task['cf:deploy:production'].invoke
+    end
+
+    it 'should deploy green if blue currently deployed' do
+      rake_tasks!
+      expect(Kernel).to receive(:system).with('cf login').ordered
+      expect(IO).to receive(:popen).with('cf routes | grep example.com') { double(:read => 'production-blue-app', :close => nil) }
+      expect(Kernel).to receive(:system).with('cf push -f manifests/production_green.yml').ordered
+      expect(Kernel).to receive(:system).with('cf map-route production-green-app example.com').ordered
+      expect(Kernel).to receive(:system).with('cf map-route production-green-app example.com -n 2').ordered
+      Rake::Task['cf:deploy:production'].invoke
+    end
+
+    xit 'should throw exception if no routes defined for blue/green task' do
     end
   end
 end
