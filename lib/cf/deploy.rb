@@ -1,6 +1,7 @@
 require 'cf/deploy/version'
+require 'cf/deploy/config'
+require 'cf/deploy/env_config'
 require 'rake'
-require 'yaml'
 
 module CF
   class Deploy
@@ -9,103 +10,6 @@ module CF
         config = Config.new
         config.instance_eval(&block) if block_given?
         new(config).tasks
-      end
-    end
-
-    class EnvConfig < Hash
-      def self.task_name(name)
-        "cf:deploy:#{name}"
-      end
-
-      def initialize(env, &block)
-        if env.is_a?(Hash)
-          name, deps = env.first
-          deps = (['cf:login'] << deps).flatten
-        else
-          name = env
-          deps = ['cf:login']
-        end
-
-        merge!({:name => name,
-                :task_name => EnvConfig.task_name(name),
-                :deps => deps,
-                :routes => [],
-                :app_names => []})
-
-        instance_eval(&block) if block_given?
-      end
-
-      def manifests(manifests)
-        self[:manifests] = manifests
-        extract_apps!
-      end
-
-      def route(domain, hostname = nil)
-        self[:routes] << {:domain => domain, :hostname => hostname}
-      end
-
-      def extract_apps!
-        app_names = self[:manifests].reduce([]) do |app_names, manifest_path|
-          manifest = YAML.load_file(manifest_path)
-
-          if manifest.has_key?('applications')
-            app_names.concat(manifest['applications'].map { |a| a['name'] })
-          else
-            app_names
-          end
-        end
-
-        merge!(:app_names => app_names)
-      end
-    end
-
-    class Config < Hash
-      VALID_CF_KEYS = [:api, :username, :password, :organisation, :space]
-
-      def initialize
-        self[:manifest_glob] = 'manifests/*'
-        self[:environments] = {}
-      end
-
-      def [](key)
-        from_env(key) || super
-      end
-
-      def from_env(key)
-        ENV["CF_#{key.upcase}"] if VALID_CF_KEYS.include?(key)
-      end
-
-      def environment_config(env)
-        if self[:environments].has_key?(env)
-          self[:environments][env]
-        else
-          EnvConfig.new(env)
-        end
-      end
-
-      def environment_config_for_manifest(manifest)
-        env = File.basename(manifest, '.yml').to_sym
-        env_config = environment_config(env)
-        env_config.manifests([manifest])
-        env_config
-      end
-
-      def environment_config_for_blue_green(env, manifests)
-        env_config = environment_config(env)
-        env_config.manifests(manifests)
-        env_config
-      end
-
-      def manifest_glob(glob) self[:manifest_glob] = glob end
-      def api(api) self[:api] = api end
-      def username(username) self[:username] = username end
-      def password(password) self[:password] = password end
-      def organisation(organisation) self[:organisation] = organisation end
-      def space(space) self[:space] = space end
-
-      def environment(env, &block)
-        env_config = EnvConfig.new(env, &block)
-        self[:environments].merge!(env_config[:name] => env_config)
       end
     end
 
