@@ -16,23 +16,13 @@ module CF
         ENV["CF_#{key.upcase}"] if VALID_CF_KEYS.include?(key)
       end
 
-      def environment_config(env)
+      def environment_config(env, manifests)
         if self[:environments].has_key?(env)
-          self[:environments][env]
+          env_config = self[:environments][env]
         else
-          EnvConfig.new(env)
+          env_config = EnvConfig.new(env)
         end
-      end
 
-      def environment_config_for_manifest(manifest)
-        env = File.basename(manifest, '.yml').to_sym
-        env_config = environment_config(env)
-        env_config.manifests([manifest])
-        env_config
-      end
-
-      def environment_config_for_blue_green(env, manifests)
-        env_config = environment_config(env)
         env_config.manifests(manifests)
         env_config
       end

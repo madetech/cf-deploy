@@ -35,11 +35,11 @@ module CF
       end
 
       def extract_apps!
-        app_names = self[:manifests].reduce([]) do |app_names, manifest_path|
+        app_names = self[:manifests].reduce({}) do |app_names, manifest_path|
           manifest = YAML.load_file(manifest_path)
 
           if manifest.has_key?('applications')
-            app_names.concat(manifest['applications'].map { |a| a['name'] })
+            app_names.merge(manifest_path => manifest['applications'].map { |a| a['name'] })
           else
             app_names
           end

@@ -20,17 +20,13 @@ module CF
     end
 
     def manifests
-      Dir[config[:manifest_glob]]
-    end
-
-    def blue_green
-      manifests = Dir["#{config[:manifest_glob]}{_blue,_green}.yml"].reduce({}) do |envs, manifest|
+      Dir[config[:manifest_glob]].reduce({}) do |envs, manifest|
         if manifest =~ /_blue.yml$/
           env = File.basename(manifest, '_blue.yml').to_sym
         elsif manifest =~ /_green.yml$/
-          env = File.basename(manifest, '_green.yml').to_sym 
+          env = File.basename(manifest, '_green.yml').to_sym
         else
-          return envs
+          env = File.basename(manifest, '.yml').to_sym
         end
 
         envs[env] ||= []
@@ -40,8 +36,7 @@ module CF
     end
 
     def tasks
-      [login_task].concat(manifests.map { |manifest| deploy_task(manifest) })
-                  .concat(blue_green.map { |(env, manifests)| blue_green_task(env, manifests) })
+      [login_task].concat(manifests.map { |(env, manifests)| deploy_task(env, manifests) })
     end
 
     def login_task
@@ -58,17 +53,23 @@ module CF
       end
     end
 
-    def deploy_task(manifest)
-      env = config.environment_config_for_manifest(manifest)
+    def deploy_task(env, manifests)
+      env = config.environment_config(env, manifests)
 
-      Rake::Task.define_task(env[:task_name] => env[:deps]) do
-        Kernel.system("cf push -f #{manifest}")
+      blue_green_task(env) if manifests.size > 1
 
-        env[:routes].each do |route|
-          env[:app_names].each do |app_name|
-            map_cmd = "cf map-route #{app_name} #{route[:domain]}"
-            map_cmd = "#{map_cmd} -n #{route[:hostname]}" unless route[:hostname].nil?
-            Kernel.system(map_cmd)
+      manifests.each do |manifest|
+        task_name = EnvConfig.task_name(File.basename(manifest, '.yml').to_sym)
+
+        Rake::Task.define_task(task_name => env[:deps]) do
+          Kernel.system("cf push -f #{manifest}")
+
+          env[:routes].each do |route|
+            env[:app_names][manifest].each do |app_name|
+              map_cmd = "cf map-route #{app_name} #{route[:domain]}"
+              map_cmd = "#{map_cmd} -n #{route[:hostname]}" unless route[:hostname].nil?
+              Kernel.system(map_cmd)
+            end
           end
         end
       end
@@ -87,9 +88,7 @@ module CF
       current_production(env) != 'blue' ? 'blue' : 'green'
     end
 
-    def blue_green_task(env, manifests)
-      env = config.environment_config_for_blue_green(env, manifests)
-
+    def blue_green_task(env)
       Rake::Task.define_task(env[:task_name] => env[:deps]) do
         task_name = EnvConfig.task_name("#{env[:name]}_#{next_production(env)}")
         Rake::Task[task_name].invoke
