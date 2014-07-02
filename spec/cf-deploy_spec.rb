@@ -1,3 +1,4 @@
+require 'spec_helper'
 require 'cf-deploy'
 require 'rake'
 
@@ -197,7 +198,7 @@ describe CF::Deploy do
             route 'example.com'
             route 'example.com', '2'
           end
-          
+
           environment :production_blue do
             route 'example.com'
             route 'example.com', '2'
