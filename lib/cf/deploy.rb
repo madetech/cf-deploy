@@ -36,7 +36,11 @@ module CF
     end
 
     def tasks
-      [define_login_task].concat(manifests.map { |(env, manifests)| define_deploy_task(env, manifests) })
+      [define_login_task].concat(deploy_tasks)
+    end
+
+    def deploy_tasks
+      manifests.map { |(env, manifests)| define_deploy_task(env, manifests) }
     end
 
     def define_login_task
