@@ -36,10 +36,10 @@ module CF
     end
 
     def tasks
-      [login_task].concat(manifests.map { |(env, manifests)| deploy_task(env, manifests) })
+      [define_login_task].concat(manifests.map { |(env, manifests)| define_deploy_task(env, manifests) })
     end
 
-    def login_task
+    def define_login_task
       return Rake::Task['cf:login'] if Rake::Task.task_defined?('cf:login')
 
       Rake::Task.define_task('cf:login') do
@@ -53,7 +53,7 @@ module CF
       end
     end
 
-    def deploy_task(env, manifests)
+    def define_deploy_task(env, manifests)
       env = config.environment_config(env, manifests)
 
       blue_green_task(env) if manifests.size > 1
