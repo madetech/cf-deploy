@@ -1,6 +1,7 @@
 require 'cf/deploy/version'
 require 'cf/deploy/config'
 require 'cf/deploy/env_config'
+require 'cf/deploy/commands'
 require 'rake'
 
 module CF
@@ -13,6 +14,7 @@ module CF
       end
     end
 
+    include Commands
     attr_accessor :config
 
     def initialize(config)
@@ -47,13 +49,7 @@ module CF
       return Rake::Task['cf:login'] if Rake::Task.task_defined?('cf:login')
 
       Rake::Task.define_task('cf:login') do
-        login_cmd = ['cf login']
-
-        login_cmd << Config::VALID_CF_KEYS
-          .reject { |key| config[key].nil? }
-          .map { |key| "-#{key.to_s[0]} #{config[key]}" }
-
-        Kernel.system(login_cmd.flatten.join(' '))
+        login(config)
       end
     end
 
@@ -66,30 +62,23 @@ module CF
         task_name = EnvConfig.task_name(File.basename(manifest, '.yml').to_sym)
 
         Rake::Task.define_task(task_name => env[:deps]) do
-          Kernel.system("cf push -f #{manifest}")
+          push(manifest)
 
           env[:routes].each do |route|
             env[:app_names][manifest].each do |app_name|
-              map_cmd = "cf map-route #{app_name} #{route[:domain]}"
-              map_cmd = "#{map_cmd} -n #{route[:hostname]}" unless route[:hostname].nil?
-              Kernel.system(map_cmd)
+              map_route(route, app_name)
             end
           end
         end
       end
     end
 
-    def current_production(env)
-      domain = env[:routes].first.values_at(:host, :domain).compact.join('.')
-      io = IO.popen("cf routes | grep #{domain}")
-      matches = /(blue|green)/.match(io.read)
-      io.close
-      return if matches.nil?
-      matches[1].strip
+    def first_domain(env)
+      env[:routes].first.values_at(:host, :domain).compact.join('.')
     end
 
     def next_production(env)
-      current_production(env) != 'blue' ? 'blue' : 'green'
+      current_production(first_domain(env)) != 'blue' ? 'blue' : 'green'
     end
 
     def blue_green_task(env)
