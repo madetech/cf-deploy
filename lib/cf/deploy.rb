@@ -8,33 +8,16 @@ module CF
   class Deploy
     class << self
       def rake_tasks!(&block)
-        config = Config.new
-        config.instance_eval(&block) if block_given?
-        new(config).tasks
+        new(Config.new(&block)).tasks
       end
     end
 
     include Commands
+
     attr_accessor :config
 
     def initialize(config)
       @config = config
-    end
-
-    def manifests
-      Dir[config[:manifest_glob]].reduce({}) do |envs, manifest|
-        if manifest =~ /_blue.yml$/
-          env = File.basename(manifest, '_blue.yml').to_sym
-        elsif manifest =~ /_green.yml$/
-          env = File.basename(manifest, '_green.yml').to_sym
-        else
-          env = File.basename(manifest, '.yml').to_sym
-        end
-
-        envs[env] ||= []
-        envs[env] << manifest
-        envs
-      end
     end
 
     def tasks
@@ -42,7 +25,7 @@ module CF
     end
 
     def deploy_tasks
-      manifests.map { |(env, manifests)| define_deploy_task(env, manifests) }
+      config[:environments].map { |env| define_deploy_task(env) }
     end
 
     def define_login_task
@@ -53,19 +36,15 @@ module CF
       end
     end
 
-    def define_deploy_task(env, manifests)
-      env = config.environment_config(env, manifests)
+    def define_deploy_task(env)
+      blue_green_task(env) if env[:deployments].size > 1
 
-      blue_green_task(env) if manifests.size > 1
-
-      manifests.each do |manifest|
-        task_name = EnvConfig.task_name(File.basename(manifest, '.yml').to_sym)
-
-        Rake::Task.define_task(task_name => env[:deps]) do
-          push(manifest)
+      env[:deployments].each do |deployment|
+        Rake::Task.define_task(deployment[:task_name] => env[:deps]) do
+          push(deployment[:manifest])
 
           env[:routes].each do |route|
-            env[:app_names][manifest].each do |app_name|
+            deployment[:app_names].each do |app_name|
               map_route(route, app_name)
             end
           end

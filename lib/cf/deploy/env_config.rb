@@ -7,40 +7,50 @@ module CF
         "cf:deploy:#{name}"
       end
 
-      def initialize(env, &block)
-        if env.is_a?(Hash)
-          name, deps = env.first
-          deps = (['cf:login'] << deps).flatten
-        else
-          name = env
-          deps = ['cf:login']
-        end
-
-        merge!({:name => name,
-                :task_name => EnvConfig.task_name(name),
-                :deps => deps,
-                :routes => [],
-                :app_names => []})
+      def initialize(name, deps, manifests, &block)
+        merge!(:name => name,
+               :task_name => EnvConfig.task_name(name),
+               :deps => deps,
+               :routes => [],
+               :manifests => manifests)
 
         instance_eval(&block) if block_given?
+
+        self[:deployments] = deployments
+      end
+
+      def deployments
+        self[:manifests].map { |manifest| deployment_for_manifest(manifest) }
+      end
+
+      def deployment_for_manifest(manifest)
+        if self[:manifests].size > 1
+          task_name = EnvConfig.task_name(File.basename(manifest, '.yml').to_sym)
+        else
+          task_name = self[:task_name]
+        end
+
+        {:task_name => task_name,
+         :manifest => manifest,
+         :app_names => app_names_for_manifest(manifest)}
+      end
+
+      def app_names_for_manifest(manifest)
+        YAML.load_file(manifest)['applications'].map { |a| a['name'] }
+      end
+
+      # Environment config setter methods
+      #
+      def manifest(manifest)
+        self[:manifests] << manifest
       end
 
       def manifests(manifests)
-        self[:manifests] = manifests
-        extract_apps!
+        self[:manifests].concat(manifests)
       end
 
       def route(domain, hostname = nil)
         self[:routes] << {:domain => domain, :hostname => hostname}
-      end
-
-      def extract_apps!
-        app_names = self[:manifests].reduce({}) do |app_names, manifest_path|
-          manifest = YAML.load_file(manifest_path)
-          app_names.merge(manifest_path => manifest['applications'].map { |a| a['name'] })
-        end
-
-        merge!(:app_names => app_names)
       end
     end
   end

@@ -15,16 +15,6 @@ describe CF::Deploy do
             route 'example.com'
             route 'example.com', '2'
           end
-
-          environment :production_blue do
-            route 'example.com'
-            route 'example.com', '2'
-          end
-
-          environment :production_green do
-            route 'example.com'
-            route 'example.com', '2'
-          end
         end
       end
     end

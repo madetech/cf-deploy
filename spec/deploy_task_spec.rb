@@ -73,5 +73,19 @@ describe CF::Deploy do
 
     xit 'should throw decent error if manifest invalid' do
     end
+
+    it 'should allow individual manifest to be specified' do
+      Dir.chdir('spec/') do
+        CF::Deploy.rake_tasks! do
+          environment :custom_manifest do
+            manifest 'manifests/staging.yml'
+          end
+        end
+      end
+
+      expect(Kernel).to receive(:system).with('cf login').ordered
+      expect(Kernel).to receive(:system).with('cf push -f manifests/staging.yml').ordered
+      Rake::Task['cf:deploy:custom_manifest'].invoke
+    end
   end
 end
