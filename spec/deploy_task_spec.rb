@@ -97,7 +97,12 @@ describe CF::Deploy do
       end.to raise_error
     end
 
-    xit 'should throw decent error if manifest does not exist' do
+    it 'should throw decent error if manifest does not exist' do
+      expect do
+        described_class.rake_tasks! do
+          environment :undefined
+        end
+      end.to raise_error
     end
 
     xit 'should throw decent error if manifest invalid' do

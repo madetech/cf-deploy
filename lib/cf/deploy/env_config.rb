@@ -16,6 +16,8 @@ module CF
 
         instance_eval(&block) if block_given?
 
+        raise "No manifests found for #{name}" if manifests.empty?
+
         self[:deployments] = deployments
       end
 
