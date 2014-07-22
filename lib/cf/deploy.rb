@@ -55,6 +55,10 @@ module CF
     end
 
     def first_domain(env)
+      if env[:routes].empty?
+        raise 'Blue/green deploys require at least one route'
+      end
+
       env[:routes].first.values_at(:host, :domain).compact.join('.')
     end
 

@@ -54,7 +54,17 @@ describe CF::Deploy do
       Rake::Task['cf:deploy:production'].invoke
     end
 
-    xit 'should throw exception if no routes defined for blue/green task' do
+    it 'should throw exception if no routes defined for blue/green task' do
+      Dir.chdir('spec/') do
+        described_class.rake_tasks! do
+          environment :production
+        end
+      end
+
+      allow(Kernel).to receive(:system)
+      expect do
+        Rake::Task['cf:deploy:production'].invoke
+      end.to raise_error
     end
   end
 end
