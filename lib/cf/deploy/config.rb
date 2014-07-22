@@ -30,17 +30,20 @@ module CF
 
       def manifests_by_env
         Dir[self[:manifest_glob]].reduce({}) do |envs, manifest|
-          if manifest =~ /_blue.yml$/
-            env = File.basename(manifest, '_blue.yml').to_sym
-          elsif manifest =~ /_green.yml$/
-            env = File.basename(manifest, '_green.yml').to_sym
-          else
-            env = File.basename(manifest, '.yml').to_sym
-          end
-
+          env = manifest_env(manifest)
           envs[env] ||= []
           envs[env] << manifest
           envs
+        end
+      end
+
+      def manifest_env(manifest)
+        if manifest =~ /_blue.yml$/
+          File.basename(manifest, '_blue.yml').to_sym
+        elsif manifest =~ /_green.yml$/
+          File.basename(manifest, '_green.yml').to_sym
+        else
+          File.basename(manifest, '.yml').to_sym
         end
       end
 
