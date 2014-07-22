@@ -41,7 +41,9 @@ module CF
 
       env[:deployments].each do |deployment|
         Rake::Task.define_task(deployment[:task_name] => env[:deps]) do
-          push(deployment[:manifest])
+          unless push(deployment[:manifest])
+            raise "Failed to deploy #{deployment}"
+          end
 
           env[:routes].each do |route|
             deployment[:app_names].each do |app_name|

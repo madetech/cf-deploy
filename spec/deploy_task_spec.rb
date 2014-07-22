@@ -14,7 +14,7 @@ describe CF::Deploy do
       end
 
       expect(Kernel).to receive(:system).with('cf login').ordered
-      expect(Kernel).to receive(:system).with('cf push -f manifests/staging.yml').ordered
+      expect(Kernel).to receive(:system).with('cf push -f manifests/staging.yml').and_return(true).ordered
       Rake::Task['cf:deploy:staging'].invoke
     end
 
@@ -28,7 +28,7 @@ describe CF::Deploy do
       end
 
       expect(Kernel).to receive(:system).with('cf login').ordered
-      expect(Kernel).to receive(:system).with('cf push -f manifests/test.yml').ordered
+      expect(Kernel).to receive(:system).with('cf push -f manifests/test.yml').and_return(true).ordered
       expect(Kernel).to receive(:system).with('cf map-route test-app testexample.com').ordered
       Rake::Task['cf:deploy:test'].invoke
     end
@@ -43,7 +43,7 @@ describe CF::Deploy do
       end
 
       expect(Kernel).to receive(:system).with('cf login').ordered
-      expect(Kernel).to receive(:system).with('cf push -f manifests/test.yml').ordered
+      expect(Kernel).to receive(:system).with('cf push -f manifests/test.yml').and_return(true).ordered
       expect(Kernel).to receive(:system).with('cf map-route test-app example.com -n test')
       Rake::Task['cf:deploy:test'].invoke
     end
@@ -59,13 +59,42 @@ describe CF::Deploy do
       end
 
       expect(Kernel).to receive(:system).with('cf login').ordered
-      expect(Kernel).to receive(:system).with('cf push -f manifests/test.yml').ordered
+      expect(Kernel).to receive(:system).with('cf push -f manifests/test.yml').and_return(true).ordered
       expect(Kernel).to receive(:system).with('cf map-route test-app example.com').ordered
       expect(Kernel).to receive(:system).with('cf map-route test-app example.com -n 2').ordered
       Rake::Task['cf:deploy:test'].invoke
     end
 
-    xit 'should not map routes if push fails' do
+    it 'should not map routes if push command fails' do
+      Dir.chdir('spec/') do
+        described_class.rake_tasks! do
+          environment :test do
+            route 'example.com'
+          end
+        end
+      end
+
+      expect(Kernel).to receive(:system).with('cf push -f manifests/test.yml').and_return(nil)
+      expect(Kernel).to_not receive(:system).with('cf map-route test-app example.com')
+      expect do
+        Rake::Task['cf:deploy:test'].invoke
+      end.to raise_error
+    end
+
+    it 'should not map routes if push command returns non-zero status' do
+      Dir.chdir('spec/') do
+        described_class.rake_tasks! do
+          environment :test do
+            route 'example.com'
+          end
+        end
+      end
+
+      expect(Kernel).to receive(:system).with('cf push -f manifests/test.yml').and_return(false)
+      expect(Kernel).to_not receive(:system).with('cf map-route test-app example.com')
+      expect do
+        Rake::Task['cf:deploy:test'].invoke
+      end.to raise_error
     end
 
     xit 'should throw decent error if manifest does not exist' do
@@ -84,7 +113,7 @@ describe CF::Deploy do
       end
 
       expect(Kernel).to receive(:system).with('cf login').ordered
-      expect(Kernel).to receive(:system).with('cf push -f manifests/staging.yml').ordered
+      expect(Kernel).to receive(:system).with('cf push -f manifests/staging.yml').and_return(true).ordered
       Rake::Task['cf:deploy:custom_manifest'].invoke
     end
   end

@@ -28,7 +28,7 @@ describe CF::Deploy do
       rake_tasks!
       expect(Kernel).to receive(:system).with('cf login').ordered
       expect(IO).to receive(:popen).with('cf routes | grep example.com') { double(:read => '', :close => nil) }
-      expect(Kernel).to receive(:system).with('cf push -f manifests/production_blue.yml').ordered
+      expect(Kernel).to receive(:system).with('cf push -f manifests/production_blue.yml').and_return(true).ordered
       expect(Kernel).to receive(:system).with('cf map-route production-blue-app example.com').ordered
       expect(Kernel).to receive(:system).with('cf map-route production-blue-app example.com -n 2').ordered
       Rake::Task['cf:deploy:production'].invoke
@@ -38,7 +38,7 @@ describe CF::Deploy do
       rake_tasks!
       expect(Kernel).to receive(:system).with('cf login').ordered
       expect(IO).to receive(:popen).with('cf routes | grep example.com') { double(:read => 'production-green-app', :close => nil) }
-      expect(Kernel).to receive(:system).with('cf push -f manifests/production_blue.yml').ordered
+      expect(Kernel).to receive(:system).with('cf push -f manifests/production_blue.yml').and_return(true).ordered
       expect(Kernel).to receive(:system).with('cf map-route production-blue-app example.com').ordered
       expect(Kernel).to receive(:system).with('cf map-route production-blue-app example.com -n 2').ordered
       Rake::Task['cf:deploy:production'].invoke
@@ -48,7 +48,7 @@ describe CF::Deploy do
       rake_tasks!
       expect(Kernel).to receive(:system).with('cf login').ordered
       expect(IO).to receive(:popen).with('cf routes | grep example.com') { double(:read => 'production-blue-app', :close => nil) }
-      expect(Kernel).to receive(:system).with('cf push -f manifests/production_green.yml').ordered
+      expect(Kernel).to receive(:system).with('cf push -f manifests/production_green.yml').and_return(true).ordered
       expect(Kernel).to receive(:system).with('cf map-route production-green-app example.com').ordered
       expect(Kernel).to receive(:system).with('cf map-route production-green-app example.com -n 2').ordered
       Rake::Task['cf:deploy:production'].invoke
