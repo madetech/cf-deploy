@@ -105,7 +105,14 @@ describe CF::Deploy do
       end.to raise_error
     end
 
-    xit 'should throw decent error if manifest invalid' do
+    it 'should throw decent error if manifest invalid' do
+      expect do
+        described_class.rake_tasks! do
+          environment :invalid_manifest do
+            manifest 'spec/spec_helper.rb'
+          end
+        end
+      end.to raise_error
     end
 
     it 'should allow individual manifest to be specified' do

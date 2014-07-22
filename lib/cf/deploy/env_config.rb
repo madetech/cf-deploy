@@ -40,7 +40,13 @@ module CF
       end
 
       def app_names_for_manifest(manifest)
-        YAML.load_file(manifest)['applications'].map { |a| a['name'] }
+        config = YAML.load_file(manifest)
+
+        if config['applications'].nil?
+          raise "No applications defined in YAML manifest #{manifest}"
+        end
+
+        config['applications'].map { |a| a['name'] }
       end
 
       # Environment config setter methods
