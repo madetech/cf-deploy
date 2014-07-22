@@ -1,6 +1,6 @@
 module CF
   class Deploy
-    module Commands
+    class Commands
       def login(config)
         login_cmd = ['cf login']
 

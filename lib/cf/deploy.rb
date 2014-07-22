@@ -8,19 +8,18 @@ module CF
   class Deploy
     class << self
       def rake_tasks!(&block)
-        new(Config.new(&block)).tasks
+        new(:config => Config.new(&block), :commands => Commands.new).rake_tasks!
       end
     end
 
-    include Commands
-
-    attr_accessor :config
+    attr_accessor :config, :cf
 
     def initialize(config)
-      @config = config
+      @config = config[:config]
+      @cf = config[:commands]
     end
 
-    def tasks
+    def rake_tasks!
       [define_login_task].concat(deploy_tasks)
     end
 
@@ -32,7 +31,7 @@ module CF
       return Rake::Task['cf:login'] if Rake::Task.task_defined?('cf:login')
 
       Rake::Task.define_task('cf:login') do
-        login(config)
+        cf.login(config)
       end
     end
 
@@ -41,13 +40,13 @@ module CF
 
       env[:deployments].each do |deployment|
         Rake::Task.define_task(deployment[:task_name] => env[:deps]) do
-          unless push(deployment[:manifest])
+          unless cf.push(deployment[:manifest])
             raise "Failed to deploy #{deployment}"
           end
 
           env[:routes].each do |route|
             deployment[:app_names].each do |app_name|
-              map_route(route, app_name)
+              cf.map_route(route, app_name)
             end
           end
         end
@@ -63,7 +62,7 @@ module CF
     end
 
     def next_production(env)
-      current_production(first_domain(env)) != 'blue' ? 'blue' : 'green'
+      cf.current_production(first_domain(env)) != 'blue' ? 'blue' : 'green'
     end
 
     def blue_green_task(env)
