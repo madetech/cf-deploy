@@ -24,15 +24,17 @@ module CF
       end
 
       def deployment_for_manifest(manifest)
-        if self[:manifests].size > 1
-          task_name = EnvConfig.task_name(File.basename(manifest, '.yml').to_sym)
-        else
-          task_name = self[:task_name]
-        end
-
-        {:task_name => task_name,
+        {:task_name => deployment_task_name(manifest),
          :manifest => manifest,
          :app_names => app_names_for_manifest(manifest)}
+      end
+
+      def deployment_task_name(manifest)
+        if self[:manifests].size > 1
+          EnvConfig.task_name(File.basename(manifest, '.yml').to_sym)
+        else
+          self[:task_name]
+        end
       end
 
       def app_names_for_manifest(manifest)
