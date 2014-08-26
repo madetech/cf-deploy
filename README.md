@@ -237,17 +237,17 @@ deployed and live.
 
 [![made](https://s3-eu-west-1.amazonaws.com/made-assets/googleapps/google-apps.png)][made]
 
-Developed and maintained by [Made][made]. Key contributions:
+Developed and maintained by [Made Tech][made]. Key contributions:
 
  * [Luke Morton](https://github.com/DrPheltRight)
 
 ## License
 
-Copyright © 2014 Made by Made Ltd. It is free software, and may be
+Copyright © 2014 Made Tech Ltd. It is free software, and may be
 redistributed under the terms specified in the [MIT-LICENSE][license] file.
 
 [CloudFoundry]: http://www.cloudfoundry.org/
 [Pivotal]: https://run.pivotal.io/
 [cli]: https://github.com/cloudfoundry/cli/releases
-[made]: http://www.madetech.co.uk?ref=github&repo=ydtd_frontend
+[made]: http://www.madetech.co.uk?ref=github&repo=cf-deploy
 [license]: https://github.com/madebymade/cf-deploy/blob/master/LICENSE
