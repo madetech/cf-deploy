@@ -1,7 +1,0 @@
-language: ruby
-rvm:
-  - 2.1.0
-  - 1.9.3
-  - jruby-19mode
-before_script:
-  - export CODECLIMATE_REPO_TOKEN=6896163b337c75e1bfc2ce916ff957c7b30b3196fb28b0c0535e9775cae189a7
