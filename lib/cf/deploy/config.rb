@@ -1,7 +1,8 @@
 module CF
   class Deploy
     class Config < Hash
-      VALID_CF_KEYS = [:api, :username, :password, :organisation, :space]
+      VALID_CF_TARGET_KEYS = [:api]
+      VALID_CF_LOGIN_KEYS = [:email, :password]
 
       attr_reader :environments_to_be_loaded
 
@@ -10,7 +11,7 @@ module CF
 
         merge!(:manifest_glob => 'manifests/*',
                :api => nil,
-               :username => nil,
+               :email => nil,
                :password => nil,
                :organisation => nil,
                :space => nil)
@@ -25,7 +26,7 @@ module CF
       end
 
       def from_env(key)
-        ENV["CF_#{key.upcase}"] if VALID_CF_KEYS.include?(key)
+        ENV["CF_#{key.upcase}"] if VALID_CF_LOGIN_KEYS.include?(key)
       end
 
       def manifests_by_env
@@ -74,7 +75,7 @@ module CF
       #
       def manifest_glob(glob) self[:manifest_glob] = glob end
       def api(api) self[:api] = api end
-      def username(username) self[:username] = username end
+      def email(email) self[:email] = email end
       def password(password) self[:password] = password end
       def organisation(organisation) self[:organisation] = organisation end
       def space(space) self[:space] = space end

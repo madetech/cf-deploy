@@ -46,7 +46,9 @@ module CF
           raise "No applications defined in YAML manifest #{manifest}"
         end
 
-        config['applications'].map { |a| a['name'] }
+        config['applications'].map { |a|
+          a['name']
+        }
       end
 
       # Environment config setter methods
