@@ -64,8 +64,8 @@ CF::Deploy.rake_tasks! do
   environment :production => [:clean, 'assets:precompile'] do
     route 'example.com'
     route 'example.com', 'admin'
-    flip_route 'yourwebsite', 'www'
-    flip_route 'yourwebsite', 'www-origin'
+    flip_route 'yourwebsite.com', 'www'
+    flip_route 'yourwebsite.com', 'www-origin'
   end
 end
 ```
@@ -106,8 +106,8 @@ CF::Deploy.rake_tasks! do
 
   environment :production => 'assets:precompile' do
     route 'example-app.io'
-    flip_route 'yourwebsite', 'www'
-    flip_route 'yourwebsite', 'www-origin'
+    flip_route 'yourwebsite.com', 'www'
+    flip_route 'yourwebsite.com', 'www-origin'
   end
 end
 ```
@@ -139,7 +139,7 @@ the [CloudFoundry CLI][cli] repo on github.
 You then need to install this gem in your project's `Gemfile`:
 
 ``` ruby
-gem 'cf-deploy', '0.1.0'
+gem 'cf-deploy', '0.1.1'
 ```
 
 ### Defining CloudFoundry details in your Rakefile
@@ -160,7 +160,7 @@ CF::Deploy.rake_tasks! do
   environment :staging => 'assets:precompile'
 
   environment :production => 'assets:precompile' do
-    flip_route 'example-app.io'
+    flip_route 'yourwebsite.com', 'www'
   end
 end
 ```
