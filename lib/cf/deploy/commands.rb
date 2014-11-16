@@ -16,8 +16,7 @@ module CF
       end
 
       def stop(app_name)
-        stop_cmd = "cf stop #{app_name}"
-        Kernel.system(stop_cmd)
+        Kernel.system("cf stop #{app_name}")
       end
 
       def map_route(route, app_name)

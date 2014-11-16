@@ -9,12 +9,12 @@ module CF
       end
 
       def initialize(name, deps, manifests, &block)
-        merge!(:name => name,
-               :task_name => EnvConfig.task_name(name),
-               :deps => deps,
-               :routes => [],
-               :flip_routes => [],
-               :manifests => manifests)
+        merge!(name: name,
+               task_name: EnvConfig.task_name(name),
+               deps: deps,
+               routes: [],
+               flip_routes: [],
+               manifests: manifests)
 
         instance_eval(&block) if block_given?
 
@@ -28,9 +28,9 @@ module CF
       end
 
       def deployment_for_manifest(manifest)
-        {:task_name => deployment_task_name(manifest),
-         :manifest => manifest,
-         :app_names => app_names_for_manifest(manifest)}
+        { task_name: deployment_task_name(manifest),
+          manifest: manifest,
+          app_names: app_names_for_manifest(manifest) }
       end
 
       def deployment_task_name(manifest)
@@ -52,10 +52,10 @@ module CF
       end
 
       def app_name_for_colour(colour)
-        self[:manifests].map { |manifest|
-          name = app_names_for_manifest(File.expand_path("#{manifest}")).first
+        self[:manifests].map do |manifest|
+          name = app_names_for_manifest(File.expand_path(manifest.to_s)).first
           return name if name.include?(colour)
-        }
+        end
       end
 
       # Environment config setter methods
@@ -69,11 +69,11 @@ module CF
       end
 
       def route(domain, hostname = nil)
-        self[:routes] << {:domain => domain, :hostname => hostname}
+        self[:routes] << { domain: domain, hostname: hostname }
       end
 
-      def flip_route(domain, hostname =nil)
-        self[:flip_routes] << {:domain => domain, :hostname => hostname}
+      def flip_route(domain, hostname = nil)
+        self[:flip_routes] << { domain: domain, hostname: hostname }
       end
     end
   end

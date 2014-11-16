@@ -3,7 +3,6 @@ require 'yaml'
 module CF
   class Deploy
     class BlueGreen
-
       attr_accessor :env, :config_task, :config, :cf
 
       def initialize(env, config_task)
@@ -17,7 +16,7 @@ module CF
           Rake::Task[task_name].invoke
         end
 
-        Rake::Task.define_task("cf:deploy:production:flip") do
+        Rake::Task.define_task('cf:deploy:production:flip') do
           cf.login(config)
 
           current_app_in_production = app_name_from_color(current_production_colour(env))
@@ -55,9 +54,12 @@ module CF
       end
 
       def next_production_colour(env)
-        current_production_colour(env) != 'blue' ? 'blue' : 'green'
+        if current_production_colour(env) != 'blue'
+          'blue'
+        else
+          'green'
+        end
       end
-
     end
   end
 end

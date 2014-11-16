@@ -8,12 +8,12 @@ module CF
       def initialize(&block)
         @environments_to_be_loaded = []
 
-        merge!(:manifest_glob => 'manifests/*',
-               :api => nil,
-               :username => nil,
-               :password => nil,
-               :organisation => nil,
-               :space => nil)
+        merge!(manifest_glob: 'manifests/*',
+               api: nil,
+               username: nil,
+               password: nil,
+               organisation: nil,
+               space: nil)
 
         instance_eval(&block) if block_given?
 

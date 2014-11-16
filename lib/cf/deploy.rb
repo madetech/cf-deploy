@@ -9,7 +9,7 @@ module CF
   class Deploy
     class << self
       def rake_tasks!(&block)
-        new(:config => Config.new(&block), :commands => Commands.new).rake_tasks!
+        new(config: Config.new(&block), commands: Commands.new).rake_tasks!
       end
     end
 
@@ -54,6 +54,5 @@ module CF
         end
       end
     end
-
   end
 end
