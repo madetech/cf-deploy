@@ -70,8 +70,8 @@ CF::Deploy.rake_tasks! do
 end
 ```
 
-Any time you deploy an environment with one or more routes defined the routes
-will be mapped to all applications in the environment's manifest.
+As soon as an environment with routes is pushed successfully each of it's routes
+will be mapped to all the applications defined in the environment's manifest.
 
 And then things get super interesting when you start talking blue/green.
 
@@ -82,19 +82,21 @@ app, test it on a private URL and then direct your traffic to the new version
 when you are ready.
 
 You have two applications for one environment, say production. One version is
-called green, the other is blue. The first time you deploy your app you either
-go to blue or green. Thereafter, any changes you want to deploy you send to the
-color that doesn't have your production domain pointed at it. You test it on
-a private URL and then when you're happy you flip your domain to point at that.
-If something then goes wrong you can then flip your domain back to the last
-working version.
+called green, the other is blue. The first time you deploy your environment
+either green or blue can be deployed. Thereafter, any changes you want to deploy
+you deploy to the color that doesn't have your production domain pointed at it.
+You test it on a private URL and then when you're happy you flip your domain to
+point at that. If something then goes wrong you can then flip your domain back
+to the last working version.
 
 This gem provides rake tasks for you to deploy using this methodology as well
 as the standard single app deployment process on a CloudFoundry provider.
 
-For example you might have a straight forward deployment for staging but use
-the blue/green strategy for production. Here is what your Rakefile might look
-like:
+### An example of blue/green
+
+Examples always help and this example is probably the most common use case. You
+might have a straight forward deployment for staging but use the blue/green
+strategy for production. Here is what your Rakefile might look like:
 
 ``` ruby
 require 'cf-deploy'
@@ -110,8 +112,11 @@ CF::Deploy.rake_tasks! do
 end
 ```
 
-You should also have `manifests/production_blue.yml` and
-`manifests/production_green.yml` defined.
+You should also have three manifests defined:
+
+ - `manifests/staging.yml`
+ - `manifests/production_blue.yml`
+ - `manifests/production_green.yml`
 
 When you run `cf:deploy:production` for the first time (assuming neither
 `production_blue.yml` or `production_green.yml` are deployed) your blue app will
