@@ -41,11 +41,13 @@ describe CF::Deploy do
         described_class.rake_tasks! do
           environment :staging => 'asset:precompile'
           environment :test => ['asset:precompile', :clean]
+          environment :production => 'asset:precompile'
         end
       end
 
       expect(Rake::Task['cf:deploy:staging'].prerequisite_tasks[1]).to be(expected_task_1)
       expect(Rake::Task['cf:deploy:test'].prerequisite_tasks[2]).to be(expected_task_2)
+      expect(Rake::Task['cf:deploy:production'].prerequisite_tasks[1]).to be(expected_task_1)
     end
 
     it 'should have a configurable manifest glob options' do

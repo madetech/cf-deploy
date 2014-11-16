@@ -151,7 +151,7 @@ CF::Deploy.rake_tasks! do
   environment :staging => 'assets:precompile'
 
   environment :production => 'assets:precompile' do
-    route 'example-app.io'
+    flip_route 'example-app.io'
   end
 end
 ```

@@ -1,4 +1,5 @@
 require 'yaml'
+require 'pathname'
 
 module CF
   class Deploy
@@ -12,6 +13,7 @@ module CF
                :task_name => EnvConfig.task_name(name),
                :deps => deps,
                :routes => [],
+               :flip_routes => [],
                :manifests => manifests)
 
         instance_eval(&block) if block_given?
@@ -49,6 +51,13 @@ module CF
         config['applications'].map { |a| a['name'] }
       end
 
+      def app_name_for_colour(colour)
+        self[:manifests].map { |manifest|
+          name = app_names_for_manifest(File.expand_path("#{manifest}")).first
+          return name if name.include?(colour)
+        }
+      end
+
       # Environment config setter methods
       #
       def manifest(manifest)
@@ -61,6 +70,10 @@ module CF
 
       def route(domain, hostname = nil)
         self[:routes] << {:domain => domain, :hostname => hostname}
+      end
+
+      def flip_route(domain, hostname =nil)
+        self[:flip_routes] << {:domain => domain, :hostname => hostname}
       end
     end
   end

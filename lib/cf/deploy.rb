@@ -2,6 +2,7 @@ require 'cf/deploy/version'
 require 'cf/deploy/config'
 require 'cf/deploy/env_config'
 require 'cf/deploy/commands'
+require 'cf/deploy/blue_green'
 require 'rake'
 
 module CF
@@ -12,11 +13,12 @@ module CF
       end
     end
 
-    attr_accessor :config, :cf
+    attr_accessor :config_task, :config, :cf
 
-    def initialize(config)
-      @config = config[:config]
-      @cf = config[:commands]
+    def initialize(config_task)
+      @config_task = config_task
+      @config = config_task[:config]
+      @cf = config_task[:commands]
     end
 
     def rake_tasks!
@@ -36,7 +38,7 @@ module CF
     end
 
     def define_deploy_task(env)
-      blue_green_task(env) if env[:deployments].size > 1
+      BlueGreen.new(env, config_task) if env[:deployments].size > 1
 
       env[:deployments].each do |deployment|
         Rake::Task.define_task(deployment[:task_name] => env[:deps]) do
@@ -53,23 +55,5 @@ module CF
       end
     end
 
-    def first_domain(env)
-      if env[:routes].empty?
-        raise 'Blue/green deploys require at least one route'
-      end
-
-      env[:routes].first.values_at(:host, :domain).compact.join('.')
-    end
-
-    def next_production(env)
-      cf.current_production(first_domain(env)) != 'blue' ? 'blue' : 'green'
-    end
-
-    def blue_green_task(env)
-      Rake::Task.define_task(env[:task_name] => env[:deps]) do
-        task_name = EnvConfig.task_name("#{env[:name]}_#{next_production(env)}")
-        Rake::Task[task_name].invoke
-      end
-    end
   end
 end
