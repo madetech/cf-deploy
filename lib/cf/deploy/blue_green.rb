@@ -13,19 +13,19 @@ module CF
         @cf = config_task[:commands]
 
         Rake::Task.define_task(env[:task_name] => env[:deps]) do
-          task_name = EnvConfig.task_name("#{env[:name]}_#{next_production(env)}")
+          task_name = EnvConfig.task_name("#{env[:name]}_#{next_production_colour(env)}")
           Rake::Task[task_name].invoke
         end
 
         Rake::Task.define_task("cf:deploy:production:flip") do
           cf.login(config)
 
-          current_env = app_name_from_color(current_production(env))
-          next_env = app_name_from_color(next_production(env))
+          current_app_in_production = app_name_from_color(current_production_colour(env))
+          next_app_in_production = app_name_from_color(next_production_colour(env))
 
           env[:flip_routes].each do |route|
-            cf.map_route(route, "#{next_env}")
-            cf.unmap_route(route, "#{current_env}")
+            cf.map_route(route, "#{next_app_in_production}")
+            cf.unmap_route(route, "#{current_app_in_production}")
           end
         end
       end
@@ -50,12 +50,12 @@ module CF
         env[:flip_routes].first.values_at(:hostname, :domain).compact.join(' *')
       end
 
-      def current_production(env)
+      def current_production_colour(env)
         cf.current_production(match_flip_route_grep(env))
       end
 
-      def next_production(env)
-        current_production(env) != 'blue' ? 'blue' : 'green'
+      def next_production_colour(env)
+        current_production_colour(env) != 'blue' ? 'blue' : 'green'
       end
 
     end
