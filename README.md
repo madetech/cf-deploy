@@ -57,11 +57,11 @@ environment block like so:
 require 'cf-deploy'
 
 CF::Deploy.rake_tasks! do
-  environment :staging => 'assets:precompile' do
+  environment staging: 'assets:precompile' do
     route 'example.com', 'staging'
   end
 
-  environment :production => [:clean, 'assets:precompile'] do
+  environment production: [:clean, 'assets:precompile'] do
     route 'example.com'
     route 'example.com', 'www'
     route 'example.com', 'www-origin'
