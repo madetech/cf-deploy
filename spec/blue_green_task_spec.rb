@@ -27,7 +27,7 @@ describe CF::Deploy do
     it 'should deploy blue if not currently deployed' do
       rake_tasks!
       expect(Kernel).to receive(:system).with('cf login').ordered
-      expect(IO).to receive(:popen).with("cf routes | grep 'www *yourwebsite.com'") { double(:read => '', :close => nil) }
+      expect(IO).to receive(:popen).with("cf routes | grep 'www *yourwebsite.com'") { double(read: '', close: nil) }
       expect(Kernel).to receive(:system).with('cf push -f manifests/production_blue.yml').and_return(true).ordered
       Rake::Task['cf:deploy:production'].invoke
     end
@@ -35,7 +35,7 @@ describe CF::Deploy do
     it 'should deploy blue if green currently deployed' do
       rake_tasks!
       expect(Kernel).to receive(:system).with('cf login').ordered
-      expect(IO).to receive(:popen).with("cf routes | grep 'www *yourwebsite.com'") { double(:read => 'production-green-app', :close => nil) }
+      expect(IO).to receive(:popen).with("cf routes | grep 'www *yourwebsite.com'") { double(read: 'production-green-app', close: nil) }
       expect(Kernel).to receive(:system).with('cf push -f manifests/production_blue.yml').and_return(true).ordered
       Rake::Task['cf:deploy:production'].invoke
     end
@@ -43,15 +43,15 @@ describe CF::Deploy do
     it 'should deploy green if blue currently deployed' do
       rake_tasks!
       expect(Kernel).to receive(:system).with('cf login').ordered
-      expect(IO).to receive(:popen).with("cf routes | grep 'www *yourwebsite.com'") { double(:read => 'production-blue-app', :close => nil) }
+      expect(IO).to receive(:popen).with("cf routes | grep 'www *yourwebsite.com'") { double(read: 'production-blue-app', close: nil) }
       expect(Kernel).to receive(:system).with('cf push -f manifests/production_green.yml').and_return(true).ordered
       Rake::Task['cf:deploy:production'].invoke
     end
 
     it 'should ignore flip_routes' do
       rake_tasks!
-      expect(Kernel).to_not receive(:system).with('cf map-route production-blue-app yourwebsite.com -n www').ordered
-      expect(Kernel).to_not receive(:system).with('cf map-route production-blue-app yourwebsite.com -n www-origin').ordered
+      expect(Kernel).to_not receive(:system).with('cf map-route production-blue-app yourwebsite.com -n www')
+      expect(Kernel).to_not receive(:system).with('cf map-route production-blue-app yourwebsite.com -n www-origin')
     end
 
     it 'should throw exception if no routes defined for blue/green task' do
@@ -62,9 +62,7 @@ describe CF::Deploy do
       end
 
       allow(Kernel).to receive(:system)
-      expect do
-        Rake::Task['cf:deploy:production'].invoke
-      end.to raise_error
+      expect { Rake::Task['cf:deploy:production'].invoke }.to raise_error
     end
 
     it 'should run prerequisite tasks' do
