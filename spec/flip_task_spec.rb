@@ -11,8 +11,9 @@ describe CF::Deploy do
     let :rake_tasks! do
       described_class.rake_tasks! do
         environment :production do
-          flip_route 'yourwebsite.com', 'www'
-          flip_route 'yourwebsite.com', 'www-origin'
+          route 'yourwebsite.com', flip: true
+          route 'yourwebsite.com', 'www', flip: true
+          route 'yourwebsite.com', 'www-origin', flip: true
         end
       end
     end
@@ -21,12 +22,18 @@ describe CF::Deploy do
       Dir.chdir('spec/') do
         rake_tasks!
         expect(Kernel).to receive(:system).with('cf login').ordered
-        expect(IO).to receive(:popen).with("cf routes | grep 'www *yourwebsite.com'") { double(:read => 'production-green-app', :close => nil) }
+
+        expect(IO).to receive(:popen).with("cf routes | grep 'yourwebsite.com'") { double(:read => 'production-green-app', :close => nil) }
+        expect(Kernel).to receive(:system).with('cf map-route production-blue-app yourwebsite.com').ordered
+        expect(Kernel).to receive(:system).with('cf unmap-route production-green-app yourwebsite.com').ordered
+
+        expect(IO).to receive(:popen).with("cf routes | grep 'yourwebsite.com'") { double(:read => 'production-green-app', :close => nil) }
         expect(Kernel).to receive(:system).with('cf map-route production-blue-app yourwebsite.com -n www').ordered
         expect(Kernel).to receive(:system).with('cf unmap-route production-green-app yourwebsite.com -n www').ordered
-        expect(IO).to receive(:popen).with("cf routes | grep 'www *yourwebsite.com'") { double(:read => 'production-green-app', :close => nil) }
+
         expect(Kernel).to receive(:system).with('cf map-route production-blue-app yourwebsite.com -n www-origin').ordered
         expect(Kernel).to receive(:system).with('cf unmap-route production-green-app yourwebsite.com -n www-origin').ordered
+
         Rake::Task['cf:deploy:production:flip'].invoke
       end
     end
@@ -35,10 +42,15 @@ describe CF::Deploy do
       Dir.chdir('spec/') do
         rake_tasks!
         expect(Kernel).to receive(:system).with('cf login').ordered
-        expect(IO).to receive(:popen).with("cf routes | grep 'www *yourwebsite.com'") { double(:read => 'production-blue-app', :close => nil) }
+
+        expect(IO).to receive(:popen).with("cf routes | grep 'yourwebsite.com'") { double(:read => 'production-blue-app', :close => nil) }
+        expect(Kernel).to receive(:system).with('cf map-route production-green-app yourwebsite.com').ordered
+        expect(Kernel).to receive(:system).with('cf unmap-route production-blue-app yourwebsite.com').ordered
+
+        expect(IO).to receive(:popen).with("cf routes | grep 'yourwebsite.com'") { double(:read => 'production-blue-app', :close => nil) }
         expect(Kernel).to receive(:system).with('cf map-route production-green-app yourwebsite.com -n www').ordered
         expect(Kernel).to receive(:system).with('cf unmap-route production-blue-app yourwebsite.com -n www').ordered
-        expect(IO).to receive(:popen).with("cf routes | grep 'www *yourwebsite.com'") { double(:read => 'production-blue-app', :close => nil) }
+
         expect(Kernel).to receive(:system).with('cf map-route production-green-app yourwebsite.com -n www-origin').ordered
         expect(Kernel).to receive(:system).with('cf unmap-route production-blue-app yourwebsite.com -n www-origin').ordered
         Rake::Task['cf:deploy:production:flip'].invoke

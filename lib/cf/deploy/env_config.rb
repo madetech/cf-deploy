@@ -67,7 +67,22 @@ module CF
         self[:manifests].concat(manifests)
       end
 
-      def route(domain, hostname = nil, options = {})
+      def route(domain, hostname_or_options = nil, options = nil)
+        if options.nil?
+          if hostname_or_options.nil?
+            hostname = nil
+            options = {}
+          elsif hostname_or_options.is_a?(String)
+            hostname = hostname_or_options
+            options = {}
+          else
+            hostname = nil
+            options = hostname_or_options
+          end
+        else
+          hostname = hostname_or_options
+        end
+
         self[:routes] << { domain: domain, hostname: hostname }.merge(options)
       end
 
