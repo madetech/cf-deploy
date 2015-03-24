@@ -8,7 +8,6 @@ describe CF::Deploy do
   end
 
   context 'Flip production environments' do
-
     let :rake_tasks! do
       described_class.rake_tasks! do
         environment :production do
@@ -45,7 +44,5 @@ describe CF::Deploy do
         Rake::Task['cf:deploy:production:flip'].invoke
       end
     end
-
   end
-
 end
