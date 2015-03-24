@@ -46,7 +46,7 @@ module CF
             raise "Failed to deploy #{deployment}"
           end
 
-          env[:routes].each do |route|
+          env[:routes].reject { |r| r[:flip] == true }.each do |route|
             deployment[:app_names].each do |app_name|
               cf.map_route(route, app_name)
             end

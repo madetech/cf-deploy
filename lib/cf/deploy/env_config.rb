@@ -13,7 +13,6 @@ module CF
                task_name: EnvConfig.task_name(name),
                deps: deps,
                routes: [],
-               flip_routes: [],
                manifests: manifests)
 
         instance_eval(&block) if block_given?
@@ -68,12 +67,12 @@ module CF
         self[:manifests].concat(manifests)
       end
 
-      def route(domain, hostname = nil)
-        self[:routes] << { domain: domain, hostname: hostname }
+      def route(domain, hostname = nil, options = {})
+        self[:routes] << { domain: domain, hostname: hostname }.merge(options)
       end
 
       def flip_route(domain, hostname = nil)
-        self[:flip_routes] << { domain: domain, hostname: hostname }
+        self[:routes] << { domain: domain, hostname: hostname, flip: true }
       end
     end
   end

@@ -22,23 +22,29 @@ module CF
           current_app_in_production = app_name_from_color(current_production_colour(env))
           next_app_in_production = app_name_from_color(next_production_colour(env))
 
-          env[:flip_routes].each do |route|
+          flip_routes(env).each do |route|
             cf.map_route(route, "#{next_app_in_production}")
             cf.unmap_route(route, "#{current_app_in_production}")
           end
         end
       end
 
+      private
+
       def app_name_from_color(colour)
         env.app_name_for_colour(colour)
       end
 
+      def flip_routes(env)
+        env[:routes].select { |r| r[:flip] == true }
+      end
+
       def match_flip_route_grep(env)
-        if env[:flip_routes].empty?
+        if flip_routes(env).empty?
           raise 'Blue/green deploys require at least one flip_route'
         end
 
-        env[:flip_routes].first.values_at(:hostname, :domain).compact.join(' *')
+        flip_routes(env).first.values_at(:hostname, :domain).compact.join(' *')
       end
 
       def current_production_colour(env)
