@@ -29,14 +29,6 @@ module CF
         end
       end
 
-      def define_login_task
-        return Rake::Task['cf:login'] if Rake::Task.task_defined?('cf:login')
-
-        Rake::Task.define_task('cf:login') do
-          cf.login(config)
-        end
-      end
-
       def app_name_from_color(colour)
         env.app_name_for_colour(colour)
       end
