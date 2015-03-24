@@ -26,7 +26,7 @@ module CF
     end
 
     def deploy_tasks
-      config[:environments].map { |env| define_deploy_task(env) }
+      config[:environments].map { |env| define_deploy_tasks(env) }
     end
 
     def define_login_task
@@ -37,19 +37,23 @@ module CF
       end
     end
 
-    def define_deploy_task(env)
+    def define_deploy_tasks(env)
       BlueGreen.new(env, config_task) if env[:deployments].size > 1
 
       env[:deployments].each do |deployment|
-        Rake::Task.define_task(deployment[:task_name] => env[:deps]) do
-          unless cf.push(deployment[:manifest])
-            raise "Failed to deploy #{deployment}"
-          end
+        define_deploy_task(env, deployment)
+      end
+    end
 
-          env[:routes].reject { |r| r[:flip] == true }.each do |route|
-            deployment[:app_names].each do |app_name|
-              cf.map_route(route, app_name)
-            end
+    def define_deploy_task(env, deployment)
+      Rake::Task.define_task(deployment[:task_name] => env[:deps]) do
+        unless cf.push(deployment[:manifest])
+          raise "Failed to deploy #{deployment}"
+        end
+
+        env[:routes].reject { |r| r[:flip] == true }.each do |route|
+          deployment[:app_names].each do |app_name|
+            cf.map_route(route, app_name)
           end
         end
       end
