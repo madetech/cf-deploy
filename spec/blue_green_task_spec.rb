@@ -12,8 +12,8 @@ describe CF::Deploy do
       Dir.chdir('spec/') do
         described_class.rake_tasks! do
           environment :production do
-            flip_route 'yourwebsite.com', 'www'
-            flip_route 'yourwebsite.com', 'www-origin'
+            route 'yourwebsite.com', 'www', flip: true
+            route 'yourwebsite.com', 'www-origin', flip: true
           end
         end
       end

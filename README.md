@@ -105,9 +105,9 @@ CF::Deploy.rake_tasks! do
   environment :staging => 'assets:precompile'
 
   environment :production => 'assets:precompile' do
-    route 'example-app.io'
-    flip_route 'yourwebsite.com', 'www'
-    flip_route 'yourwebsite.com', 'www-origin'
+    route 'example-app.io', flip: true
+    route 'example-app.io', 'www', flip: true
+    route 'example-app.io', 'www-origin', flip: true
   end
 end
 ```
@@ -160,7 +160,7 @@ CF::Deploy.rake_tasks! do
   environment :staging => 'assets:precompile'
 
   environment :production => 'assets:precompile' do
-    flip_route 'yourwebsite.com', 'www'
+    route 'yourwebsite.com', 'www', flip: true
   end
 end
 ```
