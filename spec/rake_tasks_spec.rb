@@ -54,6 +54,7 @@ describe CF::Deploy do
       expect(Rake::Task['cf:deploy:production_blue'].prerequisite_tasks[1]).to be(expected_task_1)
       expect(Rake::Task['cf:deploy:production_green'].prerequisite_tasks[1]).to be(expected_task_1)
       expect(Rake::Task['cf:deploy:production:flip'].prerequisite_tasks[0]).to be(expected_task_0)
+      expect(Rake::Task['cf:deploy:production:stop_idle'].prerequisite_tasks[0]).to be(expected_task_0)
     end
 
     it 'should have a configurable manifest glob options' do

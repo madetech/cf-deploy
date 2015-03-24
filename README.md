@@ -244,6 +244,15 @@ This will go ahead and map routes to whatever color the routes aren't mapped to
 and then unmap the other color. At this point your new production will be
 deployed and live.
 
+### Turn off idle app
+
+Once your new production has been flipped you may want to turn off your idle
+application. There is a task for this too:
+
+```
+bundle exec rake cf:deploy:production:stop_idle
+```
+
 ## Credits
 
 [![made](https://s3-eu-west-1.amazonaws.com/made-assets/googleapps/google-apps.png)][made]

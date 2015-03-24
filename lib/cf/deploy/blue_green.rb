@@ -25,6 +25,11 @@ module CF
             cf.unmap_route(route, live_app_name)
           end
         end
+
+        Rake::Task.define_task("#{env[:task_name]}:stop_idle" => 'cf:login') do
+          idle_app_name = app_name_from_color(idle_color(env))
+          cf.stop(idle_app_name)
+        end
       end
 
       private
