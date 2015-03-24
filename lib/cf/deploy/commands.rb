@@ -20,15 +20,11 @@ module CF
       end
 
       def map_route(route, app_name)
-        map_cmd = "cf map-route #{app_name} #{route[:domain]}"
-        map_cmd = "#{map_cmd} -n #{route[:hostname]}" unless route[:hostname].nil?
-        Kernel.system(map_cmd)
+        Kernel.system(route_cmd(:map, route, app_name))
       end
 
       def unmap_route(route, app_name)
-        unmap_cmd = "cf unmap-route #{app_name} #{route[:domain]}"
-        unmap_cmd = "#{unmap_cmd} -n #{route[:hostname]}" unless route[:hostname].nil?
-        Kernel.system(unmap_cmd)
+        Kernel.system(route_cmd(:unmap, route, app_name))
       end
 
       def live_color(host)
@@ -37,6 +33,14 @@ module CF
         io.close
         return if matches.nil?
         matches[1].strip
+      end
+
+      private
+
+      def route_cmd(method, route, app_name)
+        map_cmd = "cf #{method}-route #{app_name} #{route[:domain]}"
+        map_cmd = "#{map_cmd} -n #{route[:hostname]}" unless route[:hostname].nil?
+        map_cmd
       end
     end
   end
