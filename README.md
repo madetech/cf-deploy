@@ -42,8 +42,8 @@ Things start to get more exciting when you define your environments in your
 require 'cf-deploy'
 
 CF::Deploy.rake_tasks! do
-  environment :staging => 'assets:precompile'
-  environment :production => [:clean, 'assets:precompile']
+  environment staging: 'assets:precompile'
+  environment production: [:clean, 'assets:precompile']
 end
 ```
 
@@ -102,9 +102,9 @@ strategy for production. Here is what your Rakefile might look like:
 require 'cf-deploy'
 
 CF::Deploy.rake_tasks! do
-  environment :staging => 'assets:precompile'
+  environment staging: 'assets:precompile'
 
-  environment :production => 'assets:precompile' do
+  environment production: 'assets:precompile' do
     route 'example-app.io', flip: true
     route 'example-app.io', 'www', flip: true
     route 'example-app.io', 'www-origin', flip: true
@@ -157,9 +157,9 @@ CF::Deploy.rake_tasks! do
   organisation 'Made'
   space 'development'
 
-  environment :staging => 'assets:precompile'
+  environment staging: 'assets:precompile'
 
-  environment :production => 'assets:precompile' do
+  environment production: 'assets:precompile' do
     route 'yourwebsite.com', 'www', flip: true
   end
 end
