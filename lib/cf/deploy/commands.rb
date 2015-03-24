@@ -31,7 +31,7 @@ module CF
         Kernel.system(unmap_cmd)
       end
 
-      def current_production(host)
+      def live_color(host)
         io = IO.popen("cf routes | grep '#{host}'")
         matches = /(blue|green)/.match(io.read)
         io.close
