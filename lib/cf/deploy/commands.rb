@@ -6,7 +6,7 @@ module CF
 
         login_cmd << Config::VALID_CF_KEYS
           .reject { |key| config[key].nil? }
-          .map { |key| "-#{key.to_s[0]} #{config[key]}" }
+          .map { |key| "-#{key.to_s[0]} '#{config[key]}'" }
 
         Kernel.system(login_cmd.flatten.join(' '))
       end

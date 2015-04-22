@@ -139,7 +139,7 @@ the [CloudFoundry CLI][cli] repo on github.
 You then need to install this gem in your project's `Gemfile`:
 
 ``` ruby
-gem 'cf-deploy', '0.1.2'
+gem 'cf-deploy', '0.1.3'
 ```
 
 ### Defining CloudFoundry details in your Rakefile
