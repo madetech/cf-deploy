@@ -5,8 +5,8 @@ require 'cf/deploy/version'
 Gem::Specification.new do |spec|
   spec.name          = 'cf-deploy'
   spec.version       = CF::Deploy::VERSION
-  spec.authors       = ['Luke Morton']
-  spec.email         = ['luke@madetech.co.uk']
+  spec.authors       = ['Luke Morton', 'Chris Blackburn']
+  spec.email         = ['luke@madetech.co.uk', 'chris@madetech.co.uk']
   spec.summary       = %q{Rake tasks for deploying to CloudFoundry v6+}
   spec.homepage      = 'https://github.com/madebymade/cf-deploy'
   spec.license       = 'MIT'

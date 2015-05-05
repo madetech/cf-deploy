@@ -1,3 +1,4 @@
 ---
 applications:
   - name: production-green-app
+  - name: production-green-background

@@ -139,7 +139,7 @@ the [CloudFoundry CLI][cli] repo on github.
 You then need to install this gem in your project's `Gemfile`:
 
 ``` ruby
-gem 'cf-deploy', '0.1.3'
+gem 'cf-deploy', '0.1.4'
 ```
 
 ### Defining CloudFoundry details in your Rakefile
@@ -260,6 +260,7 @@ bundle exec rake cf:deploy:production:stop_idle
 Developed and maintained by [Made Tech][made]. Key contributions:
 
  * [Luke Morton](https://github.com/DrPheltRight)
+ * [Chris Blackburn](https://github.com/chrisblackburn)
 
 ## License
 

@@ -21,6 +21,7 @@ describe CF::Deploy do
         rake_tasks!
         expect(Kernel).to receive(:system).with('cf login').ordered
         expect(Kernel).to receive(:system).with('cf stop production-blue-app').ordered
+        expect(Kernel).to receive(:system).with('cf stop production-blue-background').ordered
         Rake::Task['cf:deploy:production:stop_idle'].invoke
       end
     end
@@ -29,8 +30,9 @@ describe CF::Deploy do
       Dir.chdir('spec/') do
         rake_tasks!
         expect(Kernel).to receive(:system).with('cf login').ordered
-        expect(IO).to receive(:popen).with("cf routes | grep 'yourwebsite.com'") { double(:read => 'production-blue-app', :close => nil) }
+        expect(IO).to receive(:popen).with("cf routes | grep 'yourwebsite.com'") { double(read: 'production-blue-app', close: nil) }
         expect(Kernel).to receive(:system).with('cf stop production-green-app').ordered
+        expect(Kernel).to receive(:system).with('cf stop production-green-background').ordered
         Rake::Task['cf:deploy:production:stop_idle'].invoke
       end
     end

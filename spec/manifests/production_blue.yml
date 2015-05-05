@@ -1,3 +1,4 @@
 ---
 applications:
   - name: production-blue-app
+  - name: production-blue-background
