@@ -39,9 +39,7 @@ module CF
 
       def define_stop_idle_task
         Rake::Task.define_task("#{env[:task_name]}:stop_idle" => 'cf:login') do
-          manifest = manifest_from_color(idle_color(env))
-
-          env.app_names_for_manifest(manifest).each do |app_name|
+          env.app_names_for_colour(idle_color(env)).each do |app_name|
             cf.stop(app_name)
           end
         end
@@ -73,10 +71,6 @@ module CF
         else
           'green'
         end
-      end
-
-      def manifest_from_color(color)
-        config.manifests_by_env[:production].detect { |i| i =~ /_#{color}.yml$/ }
       end
     end
   end

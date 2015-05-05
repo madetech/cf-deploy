@@ -57,6 +57,13 @@ module CF
         end
       end
 
+      def app_names_for_colour(colour)
+        self[:manifests].flat_map do |manifest|
+          names = app_names_for_manifest(File.expand_path(manifest.to_s))
+          names if names.first.include?(colour)
+        end.compact
+      end
+
       # Environment config setter methods
       #
       def manifest(manifest)
