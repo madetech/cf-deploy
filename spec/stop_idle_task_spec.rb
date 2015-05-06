@@ -16,7 +16,7 @@ describe CF::Deploy do
       end
     end
 
-    it 'should stop green if green is currently mapped' do
+    it 'should stop blue if green is currently mapped' do
       Dir.chdir('spec/') do
         rake_tasks!
         expect(Kernel).to receive(:system).with('cf login').ordered
@@ -26,7 +26,7 @@ describe CF::Deploy do
       end
     end
 
-    it 'should stop to blue if blue is currently mapped' do
+    it 'should stop green if blue is currently mapped' do
       Dir.chdir('spec/') do
         rake_tasks!
         expect(Kernel).to receive(:system).with('cf login').ordered
