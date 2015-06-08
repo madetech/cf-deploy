@@ -53,12 +53,18 @@ module CF
         env[:routes].select { |r| r[:flip] == true }
       end
 
+      def flip_routes_sorted_by_hostname(env)
+        flip_routes(env).sort do |a, b|
+          a[:hostname] && a[:hostname].length > 0 ? -1 : 1
+        end
+      end
+
       def match_flip_route_grep(env)
         if flip_routes(env).empty?
           raise 'Blue/green deploys require at least one flip_route'
         end
 
-        flip_routes(env).first.values_at(:hostname, :domain).compact.join(' *')
+        flip_routes_sorted_by_hostname(env).first.values_at(:hostname, :domain).compact.join(' *')
       end
 
       def live_color(env)
