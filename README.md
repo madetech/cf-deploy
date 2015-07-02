@@ -4,8 +4,9 @@
 [![Build Status](https://travis-ci.org/madetech/cf-deploy.svg?branch=master)](https://travis-ci.org/madetech/cf-deploy)
 [![Test Coverage](https://codeclimate.com/github/madetech/cf-deploy/badges/coverage.svg)](https://codeclimate.com/github/madetech/cf-deploy/coverage)
 
-`cf-deploy` is the capistrano alternative for deploying your Rails app to
-[CloudFoundry][CloudFoundry] providers like [Pivotal][Pivotal].
+`cf-deploy` is the tool you use to deploy your rails app to
+[CloudFoundry][CloudFoundry] providers like [Pivotal][Pivotal]. It works with
+rails 4.2 and older versions as far back as rails 3.
 
 ```
 rake cf:deploy:production
@@ -15,7 +16,6 @@ rake cf:deploy:production
  * Implement blue/green deployments
  * Run asset precompiles before deploying your app
  * Automate your rails deploys using jenkins, circle-ci, codeship
- * Works with rails 4.2 and older versions as far back as rails 3
 
 ## Basics
 
