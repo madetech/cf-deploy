@@ -1,4 +1,4 @@
-# Deploy your Rails app to CloudFoundry v6+
+# CloudFoundry Rails Deployment
 
 [![Code Climate](https://codeclimate.com/github/madetech/cf-deploy/badges/gpa.svg)](https://codeclimate.com/github/madetech/cf-deploy)
 [![Build Status](https://travis-ci.org/madetech/cf-deploy.svg?branch=master)](https://travis-ci.org/madetech/cf-deploy)
@@ -110,6 +110,9 @@ CF::Deploy.rake_tasks! do
     route 'example-app.io', flip: true
     route 'example-app.io', 'www', flip: true
     route 'example-app.io', 'www-origin', flip: true
+
+    route 'example-app.io', 'blue', blue: true
+    route 'example-app.io', 'green', green: true
   end
 end
 ```
