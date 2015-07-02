@@ -2,7 +2,7 @@
 
 [![Code Climate](https://codeclimate.com/github/madetech/cf-deploy/badges/gpa.svg)](https://codeclimate.com/github/madetech/cf-deploy)
 [![Build Status](https://travis-ci.org/madetech/cf-deploy.svg?branch=master)](https://travis-ci.org/madetech/cf-deploy)
-[![Test Coverage](https://codeclimate.com/github/madetech/cf-deploy/badges/coverage.svg)](https://codeclimate.com/github/madetech/cf-deploy)
+[![Test Coverage](https://codeclimate.com/github/madetech/cf-deploy/badges/coverage.svg)](https://codeclimate.com/github/madetech/cf-deploy/coverage)
 
 This gem provides the functionality you need to deploy your rails application to
 a [CloudFoundry][CloudFoundry] provider like [Pivotal][Pivotal].
