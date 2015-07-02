@@ -30,7 +30,8 @@ module CF
       def deployment_for_manifest(manifest)
         { task_name: deployment_task_name(manifest),
           manifest: manifest,
-          app_names: app_names_for_manifest(manifest) }
+          app_names: app_names_for_manifest(manifest),
+          apps: apps_for_manifest(manifest) }
       end
 
       def deployment_task_name(manifest)
@@ -41,14 +42,20 @@ module CF
         end
       end
 
-      def app_names_for_manifest(manifest)
+      def apps_for_manifest(manifest)
         config = YAML.load_file(manifest)
 
         if config['applications'].nil?
           raise "No applications defined in YAML manifest #{manifest}"
         end
 
-        config['applications'].map { |a| a['name'] }
+        config['applications'].map do |app|
+          app.reduce({}) { |app, (k, v)| app.merge(k.to_sym => v) }
+        end
+      end
+
+      def app_names_for_manifest(manifest)
+        apps_for_manifest(manifest).map { |a| a[:name] }
       end
 
       def app_name_for_colour(colour)

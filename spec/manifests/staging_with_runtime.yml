@@ -1,0 +1,4 @@
+---
+applications:
+  - name: staging-app
+    runtime_memory: '256M'

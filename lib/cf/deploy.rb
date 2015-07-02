@@ -56,9 +56,9 @@ module CF
           end
         end
 
-        unless env[:runtime_memory].nil?
-          deployment[:app_names].each do |app_name|
-            cf.scale_memory(app_name, env[:runtime_memory])
+        deployment[:apps].each do |app|
+          unless env[:runtime_memory].nil? and app[:runtime_memory].nil?
+            cf.scale_memory(app[:name], env[:runtime_memory] || app[:runtime_memory])
           end
         end
       end
