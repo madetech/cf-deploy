@@ -76,7 +76,7 @@ describe CF::Deploy do
 
       expect(Kernel).to receive(:system).with('cf login').ordered
       expect(Kernel).to receive(:system).with('cf push -f manifests/staging.yml').and_return(true).ordered
-      expect(Kernel).to receive(:system).with('cf scale staging-app -m 256M').and_return(true).ordered
+      expect(Kernel).to receive(:system).with('cf scale staging-app -f -m 256M').and_return(true).ordered
       Rake::Task['cf:deploy:staging'].invoke
     end
 

@@ -20,7 +20,7 @@ module CF
       end
 
       def scale_memory(app_name, memory)
-        Kernel.system("cf scale #{app_name} -m #{memory}")
+        Kernel.system("cf scale #{app_name} -f -m #{memory}")
       end
 
       def map_route(route, app_name)
