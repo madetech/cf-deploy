@@ -56,6 +56,12 @@ module CF
             cf.map_route(route, app_name)
           end
         end
+
+        unless env[:runtime_memory].nil?
+          deployment[:app_names].each do |app_name|
+            cf.scale_memory(app_name, env[:runtime_memory])
+          end
+        end
       end
     end
   end

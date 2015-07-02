@@ -13,6 +13,7 @@ module CF
                task_name: EnvConfig.task_name(name),
                deps: deps,
                routes: [],
+               runtime_memory: nil,
                manifests: manifests)
 
         instance_eval(&block) if block_given?
@@ -72,6 +73,10 @@ module CF
 
       def manifests(manifests)
         self[:manifests].concat(manifests)
+      end
+
+      def runtime_memory(memory)
+        self[:runtime_memory] = memory
       end
 
       def route(domain, hostname_or_options = nil, options = nil)

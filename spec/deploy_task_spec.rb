@@ -65,6 +65,21 @@ describe CF::Deploy do
       Rake::Task['cf:deploy:test'].invoke
     end
 
+    it 'should change memory after deployment if runtime_memory specified' do
+      Dir.chdir('spec/') do
+        described_class.rake_tasks! do
+          environment :staging do
+            runtime_memory '256M'
+          end
+        end
+      end
+
+      expect(Kernel).to receive(:system).with('cf login').ordered
+      expect(Kernel).to receive(:system).with('cf push -f manifests/staging.yml').and_return(true).ordered
+      expect(Kernel).to receive(:system).with('cf scale staging-app -m 256M').and_return(true).ordered
+      Rake::Task['cf:deploy:staging'].invoke
+    end
+
     it 'should not map routes if push command fails' do
       Dir.chdir('spec/') do
         described_class.rake_tasks! do

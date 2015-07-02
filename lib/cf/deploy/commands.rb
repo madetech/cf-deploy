@@ -19,6 +19,10 @@ module CF
         Kernel.system("cf stop #{app_name}")
       end
 
+      def scale_memory(app_name, memory)
+        Kernel.system("cf scale #{app_name} -m #{memory}")
+      end
+
       def map_route(route, app_name)
         Kernel.system(route_cmd(:map, route, app_name))
       end
