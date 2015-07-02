@@ -32,9 +32,8 @@ module CF
     def define_login_task
       return Rake::Task['cf:login'] if Rake::Task.task_defined?('cf:login')
 
-      Rake::Task.define_task('cf:login') do
-        cf.login(config)
-      end
+      task = Rake::Task.define_task('cf:login') { cf.login(config) }
+      task.add_description('Login to cf command line')
     end
 
     def define_deploy_tasks(env)
@@ -46,7 +45,7 @@ module CF
     end
 
     def define_deploy_task(env, deployment)
-      Rake::Task.define_task(deployment[:task_name] => env[:deps]) do
+      task = Rake::Task.define_task(deployment[:task_name] => env[:deps]) do
         unless cf.push(deployment[:manifest])
           raise "Failed to deploy #{deployment}"
         end
@@ -63,6 +62,8 @@ module CF
           end
         end
       end
+
+      task.add_description("Deploy #{deployment[:app_names].join(', ')}")
     end
   end
 end

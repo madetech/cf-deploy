@@ -19,14 +19,16 @@ module CF
       private
 
       def define_deployment_task
-        Rake::Task.define_task(env[:task_name] => env[:deps]) do
+        task = Rake::Task.define_task(env[:task_name] => env[:deps]) do
           task_name = EnvConfig.task_name("#{env[:name]}_#{idle_color(env)}")
           Rake::Task[task_name].invoke
         end
+
+        task.add_description("Deploy #{env}")
       end
 
       def define_flip_task
-        Rake::Task.define_task("#{env[:task_name]}:flip" => 'cf:login') do
+        task = Rake::Task.define_task("#{env[:task_name]}:flip" => 'cf:login') do
           live_app_name = app_name_from_color(live_color(env))
           idle_app_name = app_name_from_color(idle_color(env))
 
@@ -35,14 +37,18 @@ module CF
             cf.unmap_route(route, live_app_name)
           end
         end
+
+        task.add_description('Flip routes to point at currently idle app')
       end
 
       def define_stop_idle_task
-        Rake::Task.define_task("#{env[:task_name]}:stop_idle" => 'cf:login') do
+        task = Rake::Task.define_task("#{env[:task_name]}:stop_idle" => 'cf:login') do
           env.app_names_for_colour(idle_color(env)).each do |app_name|
             cf.stop(app_name)
           end
         end
+
+        task.add_description('Stop currently idle app')
       end
 
       def app_name_from_color(colour)
