@@ -12,12 +12,14 @@ rails 4.2 and older versions as far back as rails 3.
 rake cf:deploy:production
 ```
 
+## `cf-deploy` makes it easy to:
+
  * Deploy your rails app with one rake command
  * Implement blue/green deployments
  * Run asset precompiles before deploying your app
  * Automate your rails deploys using jenkins, circle-ci, codeship
 
-## Basics
+## Getting Started
 
 The functionality comes in the shape of generated rake tasks. You require this
 gem in your `Rakefile` and call the `.rake_tasks!` setup method.
@@ -36,10 +38,10 @@ bundle exec rake cf:deploy:staging
 bundle exec rake cf:deploy:production
 ```
 
-This however mimics the commands `cf push -f manifests/staging.yml` and
-`cf push -f manifests/production.yml`. Not really anything helpful or new.
-Things start to get more exciting when you define your environments in your
-`Rakefile` along with their task dependencies just like normal rake task syntax.
+You now have rake tasks that run `cf push -f manifests/staging.yml` and
+`cf push -f manifests/production.yml`. Things start to get more exciting
+when you define your environments in your `Rakefile` along with their task
+dependencies just like normal rake task syntax.
 
 ``` ruby
 require 'cf-deploy'
