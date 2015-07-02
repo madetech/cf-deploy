@@ -32,17 +32,17 @@ module CF
     def define_login_task
       return Rake::Task['cf:login'] if Rake::Task.task_defined?('cf:login')
 
-      task = Rake::Task.define_task('cf:login') { cf.login(config) }
-      task.add_description('Log into cf command line app')
+      Rake::Task.define_task('cf:login') do
+        cf.login(config)
+      end
     end
 
     def define_deploy_tasks(env)
-      env[:deployments].each do |deployment|
-        task = define_deploy_task(env, deployment)
-        task.add_description("Deploy #{deployment[:app_names].join(', ')}")
-      end
-
       BlueGreen.new(env, config_task) if env[:deployments].size > 1
+
+      env[:deployments].each do |deployment|
+        define_deploy_task(env, deployment)
+      end
     end
 
     def define_deploy_task(env, deployment)
