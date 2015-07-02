@@ -1,18 +1,20 @@
-# Rake tasks for deploying to CloudFoundry v6+
+# Deploy your Rails app to CloudFoundry v6+
 
 [![Code Climate](https://codeclimate.com/github/madetech/cf-deploy/badges/gpa.svg)](https://codeclimate.com/github/madetech/cf-deploy)
 [![Build Status](https://travis-ci.org/madetech/cf-deploy.svg?branch=master)](https://travis-ci.org/madetech/cf-deploy)
 [![Test Coverage](https://codeclimate.com/github/madetech/cf-deploy/badges/coverage.svg)](https://codeclimate.com/github/madetech/cf-deploy/coverage)
 
-This gem provides the functionality you need to deploy your rails application to
-a [CloudFoundry][CloudFoundry] provider like [Pivotal][Pivotal].
+`cf-deploy` is the capistrano alternative for deploying your Rails app to
+[CloudFoundry][CloudFoundry] providers like [Pivotal][Pivotal].
 
-With `cf-deploy` you can:
+```
+rake cf:deploy:production
+```
 
- * Define your CloudFoundry connection details in your Rakefile or using
-   environment variables
- * Implement blue/green deployment
- * Hook into your existing rake tasks for preparing deploys/syncing assets
+ * Deploy your rails app with one rake command
+ * Implement blue/green deployments
+ * Run asset precompiles before deploying your app
+ * Automate your rails deploys using jenkins, circle-ci, codeship
 
 ## Basics
 
