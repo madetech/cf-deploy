@@ -1,11 +1,9 @@
 language: ruby
 rvm:
   - ruby-head
-  - 2.2.x
-  - 2.1.x
-  - 2.0.0
+  - 2.2.2
+  - 2.1.6
   - 1.9.3
-  - jruby-head
   - jruby-19mode
 before_script:
   - export CODECLIMATE_REPO_TOKEN=593e1a9d737b016a64d59eeb26f3b934aaec8d958fdd0bf45abdc69d37ae915e
