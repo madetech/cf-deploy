@@ -23,11 +23,11 @@ describe CF::Deploy do
         rake_tasks!
         expect(Kernel).to receive(:system).with('cf login').ordered
 
-        expect(IO).to receive(:popen).with(/cf routes \| grep '(www|www-origin) \*yourwebsite.com'/) { double(:read => 'production-green-app', :close => nil) }
+        expect(IO).to receive(:popen).with(/cf routes \| grep '(www|www-origin) \*yourwebsite.com'/) { double(read: 'production-green-app', close: nil) }
         expect(Kernel).to receive(:system).with('cf map-route production-blue-app yourwebsite.com').ordered
         expect(Kernel).to receive(:system).with('cf unmap-route production-green-app yourwebsite.com').ordered
 
-        expect(IO).to receive(:popen).with(/cf routes \| grep '(www|www-origin) \*yourwebsite.com'/) { double(:read => 'production-green-app', :close => nil) }
+        expect(IO).to receive(:popen).with(/cf routes \| grep '(www|www-origin) \*yourwebsite.com'/) { double(read: 'production-green-app', close: nil) }
         expect(Kernel).to receive(:system).with('cf map-route production-blue-app yourwebsite.com -n www').ordered
         expect(Kernel).to receive(:system).with('cf unmap-route production-green-app yourwebsite.com -n www').ordered
 
@@ -43,11 +43,11 @@ describe CF::Deploy do
         rake_tasks!
         expect(Kernel).to receive(:system).with('cf login').ordered
 
-        expect(IO).to receive(:popen).with(/cf routes \| grep '(www|www-origin) \*yourwebsite.com'/) { double(:read => 'production-blue-app', :close => nil) }
+        expect(IO).to receive(:popen).with(/cf routes \| grep '(www|www-origin) \*yourwebsite.com'/) { double(read: 'production-blue-app', close: nil) }
         expect(Kernel).to receive(:system).with('cf map-route production-green-app yourwebsite.com').ordered
         expect(Kernel).to receive(:system).with('cf unmap-route production-blue-app yourwebsite.com').ordered
 
-        expect(IO).to receive(:popen).with(/cf routes \| grep '(www|www-origin) \*yourwebsite.com'/) { double(:read => 'production-blue-app', :close => nil) }
+        expect(IO).to receive(:popen).with(/cf routes \| grep '(www|www-origin) \*yourwebsite.com'/) { double(read: 'production-blue-app', close: nil) }
         expect(Kernel).to receive(:system).with('cf map-route production-green-app yourwebsite.com -n www').ordered
         expect(Kernel).to receive(:system).with('cf unmap-route production-blue-app yourwebsite.com -n www').ordered
 
