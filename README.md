@@ -15,6 +15,7 @@ rake cf:deploy:production
  * Implement blue/green deployments
  * Run asset precompiles before deploying your app
  * Automate your rails deploys using jenkins, circle-ci, codeship
+ * Works with rails 4.2 and older versions as far back as rails 3
 
 ## Basics
 
