@@ -34,7 +34,6 @@ module CF
 
           flip_routes(env).each do |route|
             cf.map_route(route, idle_app_name)
-            cf.unmap_route(route, live_app_name)
           end
         end
 
