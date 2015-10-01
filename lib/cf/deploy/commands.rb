@@ -19,6 +19,18 @@ module CF
         Kernel.system("cf stop #{app_name}")
       end
 
+      def delete(app_name)
+        Kernel.system("cf delete -f #{app_name}")
+      end
+
+      def rename(from, to)
+        Kernel.system("cf rename #{from} #{to}")
+      end
+
+      def scale_instances(app_name, count)
+        Kernel.system("cf scale #{app_name} -i #{count}")
+      end
+
       def scale_memory(app_name, memory)
         Kernel.system("cf scale #{app_name} -f -m #{memory}")
       end
