@@ -5,7 +5,7 @@ module CF
     class BlueGreen
       attr_accessor :env, :config_task, :config, :cf
 
-      def self.is_blue_green_deployment?(current_env)
+      def self.is_blue_green_environment?(current_env)
         current_env[:deployments].size > 1
       end
 
