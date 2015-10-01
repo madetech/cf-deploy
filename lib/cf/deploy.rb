@@ -3,6 +3,7 @@ require 'cf/deploy/config'
 require 'cf/deploy/env_config'
 require 'cf/deploy/commands'
 require 'cf/deploy/blue_green'
+require 'cf/deploy/canary'
 require 'rake'
 
 module CF
@@ -26,7 +27,7 @@ module CF
     end
 
     def deploy_tasks
-      config[:environments].map { |env| define_deploy_tasks(env) }
+      config[:environments].map { |env| define_deploy_tasks(env, config[:environments]) }
     end
 
     def define_login_task
@@ -36,11 +37,15 @@ module CF
       task.add_description('Login to cf command line')
     end
 
-    def define_deploy_tasks(env)
-      BlueGreen.new(env, config_task) if env[:deployments].size > 1
+    def define_deploy_tasks(current_env, environments)
+      if Canary.canary_defined?(environments) and Canary.is_canary?(current_env)
+        Canary.new(current_env, config_task, environments)
+      elsif current_env[:deployments].size > 1
+        BlueGreen.new(current_env, config_task)
+      end
 
-      env[:deployments].each do |deployment|
-        define_deploy_task(env, deployment)
+      current_env[:deployments].each do |deployment|
+        define_deploy_task(current_env, deployment)
       end
     end
 
