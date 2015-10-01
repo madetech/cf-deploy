@@ -21,6 +21,7 @@ module CF
         @environments = environments
 
         define_canary_clean_task
+        define_canary_trial_task
 
         env[:deps] << 'cf:canary:clean'
       end
@@ -39,6 +40,20 @@ module CF
         end
 
         task.add_description("Unmap production routes from new canary")
+      end
+
+      def define_canary_trial_task
+        task = Rake::Task.define_task('cf:canary:trial' => env[:deps]) do
+          production_environment[:routes].each do |route|
+            env[:deployments].each do |deployment|
+              deployment[:app_names].each do |app_name|
+                cf.map_route(route, app_name)
+              end
+            end
+          end
+        end
+
+        task.add_description("Map production routes to new canary")
       end
 
       def production_environment
