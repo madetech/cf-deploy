@@ -38,7 +38,7 @@ module CF
     end
 
     def define_deploy_tasks(current_env, environments)
-      if Canary.canary_defined?(environments) and Canary.is_canary?(current_env)
+      if Canary.canary_defined?(environments) and Canary.is_canary_environment?(current_env)
         Canary.new(current_env, config_task, environments)
       elsif BlueGreen.is_blue_green_deployment?(current_env)
         BlueGreen.new(current_env, config_task)

@@ -7,7 +7,7 @@ module CF
         end
       end
 
-      def self.is_canary?(env)
+      def self.is_canary_environment?(env)
         env[:name] == :canary
       end
 
