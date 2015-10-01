@@ -1,5 +1,5 @@
 describe CF::Deploy::EnvConfig do
-  let(:env_config) { described_class.new(:staging, 'assets:precompile', ['spec/manifests/staging_with_runtime.yml']) }
+  let(:env_config) { described_class.new(:staging, 'assets:precompile', ['spec/manifests/shared/staging_with_runtime.yml']) }
 
   context 'when reading application names' do
     subject { env_config[:deployments].first[:app_names] }

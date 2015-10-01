@@ -10,7 +10,9 @@ describe CF::Deploy do
   context '.rake_tasks!' do
     it 'should install task for each manifest' do
       Dir.chdir('spec/') do
-        described_class.rake_tasks!
+        described_class.rake_tasks! do
+          manifest_glob 'manifests/shared/*.yml'
+        end
       end
 
       expect(Rake::Task['cf:deploy:staging']).to be_a(Rake::Task)
@@ -19,7 +21,9 @@ describe CF::Deploy do
 
     it 'should install login task' do
       Dir.chdir('spec/') do
-        described_class.rake_tasks!
+        described_class.rake_tasks! do
+          manifest_glob 'manifests/shared/*.yml'
+        end
       end
 
       expect(Rake::Task['cf:login']).to be_a(Rake::Task)
@@ -27,7 +31,9 @@ describe CF::Deploy do
 
     it 'should install a login task as a prerequisite for deploy tasks' do
       Dir.chdir('spec/') do
-        described_class.rake_tasks!
+        described_class.rake_tasks! do
+          manifest_glob 'manifests/shared/*.yml'
+        end
       end
 
       expect(Rake::Task['cf:deploy:staging'].prerequisite_tasks[0]).to be(Rake::Task['cf:login'])
@@ -40,6 +46,8 @@ describe CF::Deploy do
 
       Dir.chdir('spec/') do
         described_class.rake_tasks! do
+          manifest_glob 'manifests/**/*.yml'
+
           environment staging: 'asset:precompile'
           environment test: ['asset:precompile', :clean]
           environment production: 'asset:precompile' do
@@ -60,7 +68,7 @@ describe CF::Deploy do
     it 'should have a configurable manifest glob options' do
       Dir.chdir('spec/') do
         described_class.rake_tasks! do
-          manifest_glob 'manifests/staging.yml'
+          manifest_glob 'manifests/shared/staging.yml'
         end
       end
 

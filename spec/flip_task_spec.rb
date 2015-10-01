@@ -10,6 +10,8 @@ describe CF::Deploy do
   context 'Flip production environments' do
     let :rake_tasks! do
       described_class.rake_tasks! do
+        manifest_glob 'manifests/blue_green/*.yml'
+
         environment :production do
           route 'yourwebsite.com', flip: true
           route 'yourwebsite.com', 'www', flip: true
