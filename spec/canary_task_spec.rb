@@ -24,7 +24,7 @@ describe CF::Deploy do
       end
     end
 
-    it 'should unmap any existing production routes' do
+    it 'should unmap any existing production routes and then deploy' do
       rake_tasks!
 
       expect(Kernel).to receive(:system).with('cf login').ordered
