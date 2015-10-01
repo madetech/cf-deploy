@@ -22,6 +22,7 @@ module CF
 
         define_canary_clean_task
         define_canary_trial_task
+        define_canary_release_task
 
         env[:deps] << 'cf:canary:clean'
       end
@@ -54,6 +55,30 @@ module CF
         end
 
         task.add_description("Map production routes to new canary")
+      end
+
+      def define_canary_release_task
+        task = Rake::Task.define_task('cf:canary:release' => env[:deps]) do
+          prod_app = production_environment[:deployments].first[:apps].first
+          canary_app = canary_environment[:deployments].first[:apps].first
+
+          cf.scale_instances(canary_app[:name], prod_app[:instances])
+          cf.delete(prod_app[:name])
+          cf.rename(canary_app[:name], prod_app[:name])
+
+          cf.map_route({ domain: 'cfapps.io', hostname: prod_app[:name] }, prod_app[:name])
+          cf.unmap_route({ domain: 'cfapps.io', hostname: canary_app[:name] }, prod_app[:name])
+
+          canary_environment[:routes].each do |route|
+            cf.unmap_route(route, prod_app[:name])
+          end
+        end
+
+        task.add_description("Map production routes to new canary")
+      end
+
+      def canary_environment
+        environments.select { |env| env[:name] == :canary }.first
       end
 
       def production_environment

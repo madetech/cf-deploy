@@ -55,4 +55,25 @@ describe CF::Deploy do
       Rake::Task['cf:canary:trial'].invoke
     end
   end
+
+  context 'Canary release task' do
+    it 'should add production routes to the canary app' do
+      rake_tasks!
+
+      expect(Kernel).to receive(:system).with('cf login').ordered
+
+      expect(Kernel).to receive(:system).with('cf scale canary-app -i 2')
+
+      expect(Kernel).to receive(:system).with('cf delete -f production-app')
+      expect(Kernel).to receive(:system).with('cf rename canary-app production-app')
+
+      expect(Kernel).to receive(:system).with('cf map-route production-app cfapps.io -n production-app')
+      expect(Kernel).to receive(:system).with('cf unmap-route production-app cfapps.io -n canary-app')
+
+      expect(Kernel).to receive(:system).with('cf unmap-route production-app canary.yourwebsite.com').ordered
+      expect(Kernel).to receive(:system).with('cf unmap-route production-app canary.yourwebsite.com -n www').ordered
+
+      Rake::Task['cf:canary:release'].invoke
+    end
+  end
 end

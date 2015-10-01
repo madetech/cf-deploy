@@ -1,4 +1,4 @@
 ---
 applications:
-  - name: production-green-app
-  - name: production-green-background
+  - name: production-app
+    instances: 2
