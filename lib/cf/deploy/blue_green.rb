@@ -5,6 +5,10 @@ module CF
     class BlueGreen
       attr_accessor :env, :config_task, :config, :cf
 
+      def self.is_blue_green_deployment?(current_env)
+        current_env[:deployments].size > 1
+      end
+
       def initialize(env, config_task)
         @env = env
         @config_task = config_task
