@@ -23,6 +23,7 @@ module CF
         define_canary_clean_task
         define_canary_trial_task
         define_canary_release_task
+        define_canary_fail_task
 
         env[:deps] << 'cf:canary:clean'
       end
@@ -75,6 +76,16 @@ module CF
         end
 
         task.add_description("Map production routes to new canary")
+      end
+
+      def define_canary_fail_task
+        task = Rake::Task.define_task('cf:canary:fail' => env[:deps]) do
+          canary_app = canary_environment[:deployments].first[:apps].first
+
+          cf.delete(canary_app[:name])
+        end
+
+        task.add_description("Delete the current canary app")
       end
 
       def canary_environment

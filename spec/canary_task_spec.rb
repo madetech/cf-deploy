@@ -76,4 +76,15 @@ describe CF::Deploy do
       Rake::Task['cf:canary:release'].invoke
     end
   end
+
+  context 'Canary fail task' do
+    it 'should delete the canary app' do
+      rake_tasks!
+
+      expect(Kernel).to receive(:system).with('cf login').ordered
+      expect(Kernel).to receive(:system).with('cf delete -f canary-app').ordered
+
+      Rake::Task['cf:canary:fail'].invoke
+    end
+  end
 end
