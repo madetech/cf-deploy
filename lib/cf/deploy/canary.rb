@@ -31,7 +31,7 @@ module CF
       private
 
       def define_canary_clean_task
-        task = Rake::Task.define_task('cf:canary:clean' => env[:deps]) do
+        task = Rake::Task.define_task('cf:canary:clean' => 'cf:login') do
           production_environment[:routes].each do |route|
             env[:deployments].each do |deployment|
               deployment[:app_names].each do |app_name|
@@ -45,7 +45,7 @@ module CF
       end
 
       def define_canary_trial_task
-        task = Rake::Task.define_task('cf:canary:trial' => env[:deps]) do
+        task = Rake::Task.define_task('cf:canary:trial' => 'cf:login') do
           production_environment[:routes].each do |route|
             env[:deployments].each do |deployment|
               deployment[:app_names].each do |app_name|
@@ -59,7 +59,7 @@ module CF
       end
 
       def define_canary_release_task
-        task = Rake::Task.define_task('cf:canary:release' => env[:deps]) do
+        task = Rake::Task.define_task('cf:canary:release' => 'cf:login') do
           prod_app = production_environment[:deployments].first[:apps].first
           canary_app = canary_environment[:deployments].first[:apps].first
 
@@ -79,7 +79,7 @@ module CF
       end
 
       def define_canary_fail_task
-        task = Rake::Task.define_task('cf:canary:fail' => env[:deps]) do
+        task = Rake::Task.define_task('cf:canary:fail' => 'cf:login') do
           canary_app = canary_environment[:deployments].first[:apps].first
 
           cf.delete(canary_app[:name])
