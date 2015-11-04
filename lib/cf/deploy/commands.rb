@@ -5,8 +5,10 @@ module CF
         login_cmd = ['cf login']
 
         login_cmd << Config::VALID_CF_KEYS
-          .reject { |key| config[key].nil? }
+          .reject { |key| config[key].nil? || key == :extra_args}
           .map { |key| "-#{key.to_s[0]} '#{config[key]}'" }
+        login_cmd << config[:extra_args] unless config[:extra_args].nil?
+
 
         Kernel.system(login_cmd.flatten.join(' '))
       end

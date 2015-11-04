@@ -1,7 +1,7 @@
 module CF
   class Deploy
     class Config < Hash
-      VALID_CF_KEYS = [:api, :username, :password, :organisation, :space]
+      VALID_CF_KEYS = [:api, :username, :password, :organisation, :space, :extra_args]
 
       attr_reader :environments_to_be_loaded
 
@@ -13,7 +13,8 @@ module CF
                username: nil,
                password: nil,
                organisation: nil,
-               space: nil)
+               space: nil,
+               extra_args: nil)
 
         instance_eval(&block) if block_given?
 
@@ -78,6 +79,7 @@ module CF
       def password(password) self[:password] = password end
       def organisation(organisation) self[:organisation] = organisation end
       def space(space) self[:space] = space end
+      def extra_args(extra_args) self[:extra_args] = extra_args end
       def environment(env, &block) @environments_to_be_loaded << [env, block] end
     end
   end
