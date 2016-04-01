@@ -23,6 +23,10 @@ module CF
         Kernel.system("cf scale #{app_name} -f -m #{memory}")
       end
 
+      def scale_instances(app_name, instances)
+        Kernel.system("cf scale #{app_name} -i #{instances}")
+      end
+
       def map_route(route, app_name)
         Kernel.system(route_cmd(:map, route, app_name))
       end

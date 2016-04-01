@@ -65,7 +65,7 @@ describe CF::Deploy do
       Rake::Task['cf:deploy:test'].invoke
     end
 
-    it 'should change memory after deployment if runtime_memory specified in manifest' do
+    it 'should scale after deployment if runtime settings specified in manifest' do
       Dir.chdir('spec/') do
         described_class.rake_tasks! do
           environment :staging
@@ -75,14 +75,16 @@ describe CF::Deploy do
       expect(Kernel).to receive(:system).with('cf login').ordered
       expect(Kernel).to receive(:system).with('cf push -f manifests/staging_with_runtime.yml').and_return(true).ordered
       expect(Kernel).to receive(:system).with('cf scale staging-app -f -m 256M').and_return(true).ordered
+      expect(Kernel).to receive(:system).with('cf scale staging-app -i 2').and_return(true).ordered
       Rake::Task['cf:deploy:staging_with_runtime'].invoke
     end
 
-    it 'should change memory after deployment if runtime_memory specified in cf:deploy config' do
+    it 'should scale after deployment if runtime settings specified in cf:deploy config' do
       Dir.chdir('spec/') do
         described_class.rake_tasks! do
           environment :staging_with_runtime do
             runtime_memory '512M'
+            runtime_instances 2
           end
         end
       end
@@ -90,6 +92,7 @@ describe CF::Deploy do
       expect(Kernel).to receive(:system).with('cf login').ordered
       expect(Kernel).to receive(:system).with('cf push -f manifests/staging_with_runtime.yml').and_return(true).ordered
       expect(Kernel).to receive(:system).with('cf scale staging-app -f -m 512M').and_return(true).ordered
+      expect(Kernel).to receive(:system).with('cf scale staging-app -i 2').and_return(true).ordered
       Rake::Task['cf:deploy:staging_with_runtime'].invoke
     end
 

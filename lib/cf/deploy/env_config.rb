@@ -14,6 +14,7 @@ module CF
                deps: deps,
                routes: [],
                runtime_memory: nil,
+               runtime_instances: nil,
                manifests: manifests)
 
         instance_eval(&block) if block_given?
@@ -84,6 +85,10 @@ module CF
 
       def runtime_memory(memory)
         self[:runtime_memory] = memory
+      end
+
+      def runtime_instances(instances)
+        self[:runtime_instances] = instances
       end
 
       def route(domain, hostname_or_options = nil, options = nil)

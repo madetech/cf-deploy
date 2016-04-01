@@ -60,6 +60,10 @@ module CF
           unless env[:runtime_memory].nil? and app[:runtime_memory].nil?
             cf.scale_memory(app[:name], env[:runtime_memory] || app[:runtime_memory])
           end
+
+          unless env[:runtime_instances].nil? and app[:runtime_instances].nil?
+            cf.scale_instances(app[:name], env[:runtime_instances] || app[:runtime_instances])
+          end
         end
       end
 
