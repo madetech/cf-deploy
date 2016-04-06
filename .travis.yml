@@ -7,3 +7,5 @@ rvm:
   - jruby
 before_script:
   - export CODECLIMATE_REPO_TOKEN=593e1a9d737b016a64d59eeb26f3b934aaec8d958fdd0bf45abdc69d37ae915e
+notifications:
+  slack: madetechteam:be3g1qE6so2p2UcqQiOGBRUs
