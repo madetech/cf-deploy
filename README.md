@@ -193,6 +193,12 @@ export CF_SPACE=development
 Now you can run any of the `cf-deploy` rake tasks providing you have called
 `CF::Deploy.rake_tasks!` in your `Rakefile`.
 
+If you want to add any extra arguments, you can set the ```CF_EXTRA_ARGS``` variable:
+
+``` sh
+export CF_EXTRA_ARGS=--skip-ssl-validation
+```
+
 ## Commands
 
 ### Deploying an environment
